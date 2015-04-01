@@ -427,6 +427,22 @@ install: all
 	#cp xv_mgcsfx.sample $(DESTDIR)$(SYSCONFDIR)/xv_mgcsfx
 	#chmod 644 $(DESTDIR)$(SYSCONFDIR)/xv_mgcsfx
 
+uninstall:
+	rm -f $(DESTDIR)$(BINDIR)/xv $(DESTDIR)$(BINDIR)/bggen \
+	  $(DESTDIR)$(BINDIR)/vdcomp $(DESTDIR)$(BINDIR)/xcmap \
+	  $(DESTDIR)$(BINDIR)/xvpictoppm
+	find $(DESTDIR)$(BINDIR) -type d -empty -delete
+#
+	rm -f $(DESTDIR)$(MANDIR)/xv.$(MANSUF) \
+	  $(DESTDIR)$(MANDIR)/bggen.$(MANSUF) \
+	  $(DESTDIR)$(MANDIR)/xcmap.$(MANSUF) \
+	  $(DESTDIR)$(MANDIR)/xvpictoppm.$(MANSUF) \
+	  $(DESTDIR)$(MANDIR)/vdcomp.$(MANSUF)
+	find $(DESTDIR)$(MANDIR) -type d -empty -delete
+#
+	rm -f $(DESTDIR)$(DOCDIR)/README.jumbo \
+	  $(DESTDIR)$(DOCDIR)/xvdocs.pdf $(DESTDIR)$(DOCDIR)/xvdocs.ps
+	find $(DESTDIR)$(DOCDIR) -type d -empty -delete
 
 tar:
 #	tar only local jpeg and tiff dirs, not user's or system's copies:
