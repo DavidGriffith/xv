@@ -178,14 +178,15 @@ ZLIBLIB = -L$(ZLIBDIR)/lib -lz
 ###
 JP2K    = -DDOJP2K
 ###
+JP2KDIR = /usr
+#JP2KDIR = /usr/local/lib
 #JP2KDIR = ../../jasper
-JP2KDIR = /usr/local/lib
 ###
-#JP2KINC = -I$(JP2KDIR)
-JP2KINC = -I/usr/local/include
+#JP2KINC = -I/usr/local/include
+JP2KINC = -I$(JP2KDIR)
 ###
-#JP2KLIB = -L$(JP2KDIR) -ljasper
-JP2KLIB = $(JP2KDIR)/libjasper.a
+#JP2KLIB = $(JP2KDIR)/libjasper.a
+JP2KLIB = -L$(JP2KDIR) -ljasper
 
 
 ###
