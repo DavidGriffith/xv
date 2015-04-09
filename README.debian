@@ -1,0 +1,7 @@
+To compile on at least Debian 7 (wheezy), install the following packages 
+first:
+
+build-essential libx11-dev libxau-dev libc6-dev libxt-dev libjpeg-dev 
+libtiff-dev libpng-dev libjasper-dev
+
+This should translate across most Debian-based distributions.
