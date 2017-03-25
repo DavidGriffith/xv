@@ -82,6 +82,8 @@
 
 #include <signal.h>      /* for interrupt handling */
 
+#include <zlib.h>        /* some systems need this explicitly */
+
 /* at least on Linux, the following file (1) includes sys/types.h and
  * (2) defines __USE_BSD (which was not defined before here), so __linux__
  * block is now moved after this #include */
