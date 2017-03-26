@@ -508,9 +508,13 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     return -1;
   }
 
+// FIXME DG playing around here
 printf("%d, %d\n", w, h);
 
-  png_set_IHDR(png_ptr, info_ptr, w, h, 0, 0, 0, 0, 0);
+  png_set_IHDR(png_ptr, info_ptr, w, h, 8, PNG_COLOR_TYPE_RGB,
+	PNG_INTERLACE_NONE,
+	PNG_COMPRESSION_TYPE_DEFAULT,
+	PNG_FILTER_TYPE_DEFAULT);
 
 printf("%d, %d\n", info_ptr->width, info_ptr->height);
 
