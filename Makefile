@@ -1,7 +1,7 @@
 # Makefile for xv
 
 # your C compiler (and options) of choice
-CC = cc
+CC = cc -g
 #CC = gcc -ansi
 # note that -ansi kills __USE_MISC (gcc 2.95.3), which, at least on Linux,
 # determines whether stdlib.h includes prototypes for mktemp(), random(), etc.
@@ -143,8 +143,8 @@ JPEGLIB = -L$(JPEGDIR)/lib -ljpeg
 ### on your machine, *COMMENT OUT* the following lines
 ###
 PNG    = -DDOPNG
-PNGDIR = /usr
-#PNGDIR = /usr/local
+#PNGDIR = /usr
+PNGDIR = /usr/local
 #PNGDIR = ../../libpng
 ###
 PNGINC = -I$(PNGDIR)/include
