@@ -887,6 +887,14 @@ int LoadPNG(fname, pinfo)
   int gray_to_rgb;
   size_t commentsize;
 
+// Stuff for v1.5 compliance
+  double gamma;
+  png_color_16p background;
+  png_colorp	palette;
+  int		num_palette;
+  png_textp	text;
+  int		num_text;
+
   fbasename = BaseName(fname);
 
   pinfo->pic     = (byte *) NULL;
@@ -921,7 +929,8 @@ int LoadPNG(fname, pinfo)
     FatalError("malloc failure in LoadPNG");
   }
 
-  if (setjmp(png_ptr->jmpbuf)) {
+//  if (setjmp(png_ptr->jmpbuf)) {
+  if (setjmp(png_jmpbuf(png_ptr))) {
     fclose(fp);
     png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
     if (!read_anything) {
@@ -945,8 +954,10 @@ int LoadPNG(fname, pinfo)
 #endif
   png_read_info(png_ptr, info_ptr);
 
-  pinfo->w = pinfo->normw = info_ptr->width;
-  pinfo->h = pinfo->normh = info_ptr->height;
+//  pinfo->w = pinfo->normw = info_ptr->width;
+//  pinfo->h = pinfo->normh = info_ptr->height;
+  pinfo->w = pinfo->normw = png_get_image_width(png_ptr, info_ptr);
+  pinfo->h = pinfo->normh = png_get_image_height(png_ptr, info_ptr);
   if (pinfo->w <= 0 || pinfo->h <= 0) {
     SetISTR(ISTR_WARNING, "%s:  image dimensions out of range (%dx%d)",
       fbasename, pinfo->w, pinfo->h);
@@ -957,9 +968,10 @@ int LoadPNG(fname, pinfo)
   pinfo->frmType = F_PNG;
 
   sprintf(pinfo->fullInfo, "PNG, %d bit ",
-          info_ptr->bit_depth * info_ptr->channels);
-
-  switch(info_ptr->color_type) {
+//          info_ptr->bit_depth * info_ptr->channels);
+          png_get_bit_depth(png_ptr, info_ptr) * png_get_channels(png_ptr, info_ptr));
+//  switch(info_ptr->color_type) {
+  switch(png_get_color_type(png_ptr, info_ptr)) {
     case PNG_COLOR_TYPE_PALETTE:
       strcat(pinfo->fullInfo, "palette color");
       break;
@@ -983,15 +995,22 @@ int LoadPNG(fname, pinfo)
 
   sprintf(pinfo->fullInfo + strlen(pinfo->fullInfo),
 	  ", %sinterlaced. (%d bytes)",
-	  info_ptr->interlace_type ? "" : "non-", filesize);
+//	  info_ptr->interlace_type ? "" : "non-", filesize);
+	  png_get_interlace_type(png_ptr, info_ptr) ? "" : "non-", filesize);
 
-  sprintf(pinfo->shrtInfo, "%lux%lu PNG", info_ptr->width, info_ptr->height);
+//  sprintf(pinfo->shrtInfo, "%lux%lu PNG", info_ptr->width, info_ptr->height);
+  sprintf(pinfo->shrtInfo, "%lux%lu PNG", png_get_image_width(png_ptr, info_ptr), png_get_image_height(png_ptr, info_ptr));
 
-  if (info_ptr->bit_depth < 8)
+//  if (info_ptr->bit_depth < 8)
+  if (png_get_bit_depth(png_ptr, info_ptr) < 8)
       png_set_packing(png_ptr);
 
-  if (info_ptr->valid & PNG_INFO_gAMA)
-    png_set_gamma(png_ptr, Display_Gamma, info_ptr->gamma);
+//  if (info_ptr->valid & PNG_INFO_gAMA) {
+  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_gAMA)) {
+//    png_set_gamma(png_ptr, Display_Gamma, info_ptr->gamma);
+      png_get_gAMA(png_ptr, info_ptr, &gamma);
+      png_set_gamma(png_ptr, Display_Gamma, gamma);
+  }
 /*
  *else
  *  png_set_gamma(png_ptr, Display_Gamma, 0.45);
@@ -1000,7 +1019,8 @@ int LoadPNG(fname, pinfo)
   gray_to_rgb = 0;   /* quiet a compiler warning */
 
   if (have_imagebg) {
-    if (info_ptr->bit_depth == 16) {
+//    if (info_ptr->bit_depth == 16) {
+    if (png_get_bit_depth(png_ptr, info_ptr) == 16) {
       my_background.red   = imagebgR;
       my_background.green = imagebgG;
       my_background.blue  = imagebgB;
@@ -1013,8 +1033,10 @@ int LoadPNG(fname, pinfo)
     }
     png_set_background(png_ptr, &my_background, PNG_BACKGROUND_GAMMA_SCREEN,
                        0, Display_Gamma);
-    if ((info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA ||
-         (info_ptr->color_type == PNG_COLOR_TYPE_GRAY && HAVE_tRNS)) &&
+//    if ((info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA ||
+//         (info_ptr->color_type == PNG_COLOR_TYPE_GRAY && HAVE_tRNS)) &&
+    if ((png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY_ALPHA ||
+         (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))) &&
         (imagebgR != imagebgG || imagebgR != imagebgB))  /* i.e., colored bg */
     {
       png_set_gray_to_rgb(png_ptr);
@@ -1022,8 +1044,11 @@ int LoadPNG(fname, pinfo)
       gray_to_rgb = 1;
     }
   } else {
-    if (info_ptr->valid & PNG_INFO_bKGD) {
-      png_set_background(png_ptr, &info_ptr->background,
+//    if (info_ptr->valid & PNG_INFO_bKGD) {
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_bKGD)) {
+      png_get_bKGD(png_ptr, info_ptr, &background);
+//      png_set_background(png_ptr, &info_ptr->background,
+      png_set_background(png_ptr, background,
                          PNG_BACKGROUND_GAMMA_FILE, 1, 1.0);
     } else {
       my_background.red = my_background.green = my_background.blue =
@@ -1033,13 +1058,17 @@ int LoadPNG(fname, pinfo)
     }
   }
 
-  if (info_ptr->bit_depth == 16)
+//  if (info_ptr->bit_depth == 16)
+  if (png_get_bit_depth(png_ptr, info_ptr) == 16)
     png_set_strip_16(png_ptr);
 
-  if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
-      info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+//  if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
+//      info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+  if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY ||
+      png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY_ALPHA)
   {
-    if (info_ptr->bit_depth == 1)
+//    if (info_ptr->bit_depth == 1)
+    if (png_get_bit_depth(png_ptr, info_ptr) == 1)
       pinfo->colType = F_BWDITHER;
     else
       pinfo->colType = F_GREYSCALE;
@@ -1048,10 +1077,13 @@ int LoadPNG(fname, pinfo)
 
   pass=png_set_interlace_handling(png_ptr);
 
+// I don't know if this needs to be commented out or not
   png_read_update_info(png_ptr, info_ptr);
 
-  if (info_ptr->color_type == PNG_COLOR_TYPE_RGB ||
-     info_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA || gray_to_rgb)
+//  if (info_ptr->color_type == PNG_COLOR_TYPE_RGB ||
+//     info_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA || gray_to_rgb)
+  if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGB ||
+      png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGB_ALPHA || gray_to_rgb)
   {
     linesize = 3 * pinfo->w;
     if (linesize/3 < pinfo->w) {   /* know pinfo->w > 0 (see above) */
@@ -1065,16 +1097,25 @@ int LoadPNG(fname, pinfo)
   } else {
     linesize = pinfo->w;
     pinfo->type = PIC8;
-    if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
-       info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+//    if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
+//       info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+    if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY ||
+        png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY_ALPHA) {
       for (i = 0; i < 256; i++)
         pinfo->r[i] = pinfo->g[i] = pinfo->b[i] = i;
     } else {
       pinfo->colType = F_FULLCOLOR;
-      for (i = 0; i < info_ptr->num_palette; i++) {
-        pinfo->r[i] = info_ptr->palette[i].red;
-        pinfo->g[i] = info_ptr->palette[i].green;
-        pinfo->b[i] = info_ptr->palette[i].blue;
+
+      png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
+
+//      for (i = 0; i < info_ptr->num_palette; i++) {
+//        pinfo->r[i] = info_ptr->palette[i].red;
+//        pinfo->g[i] = info_ptr->palette[i].green;
+//        pinfo->b[i] = info_ptr->palette[i].blue;
+      for (i = 0; i < num_palette; i++) {
+        pinfo->r[i] = palette[i].red;
+        pinfo->g[i] = palette[i].green;
+        pinfo->b[i] = palette[i].blue;
       }
     }
   }
@@ -1106,22 +1147,31 @@ int LoadPNG(fname, pinfo)
 
   png_read_end(png_ptr, info_ptr);
 
-  if (info_ptr->num_text > 0) {
+  png_get_text(png_ptr, info_ptr, &text, &num_text);
+
+//  if (info_ptr->num_text > 0) {
+  if (num_text > 0) {
     commentsize = 1;
 
-    for (i = 0; i < info_ptr->num_text; i++)
-      commentsize += strlen(info_ptr->text[i].key) + 1 +
-                     info_ptr->text[i].text_length + 2;
+//    for (i = 0; i < info_ptr->num_text; i++)
+    for (i = 0; i < num_text; i++)
+//      commentsize += strlen(info_ptr->text[i].key) + 1 +
+//                     info_ptr->text[i].text_length + 2;
+      commentsize += strlen(text[i].key) + 1 +
+                     text[i].text_length + 2;
 
     if ((pinfo->comment = malloc(commentsize)) == NULL) {
       png_warning(png_ptr,"can't allocate comment string");
     }
     else {
       pinfo->comment[0] = '\0';
-      for (i = 0; i < info_ptr->num_text; i++) {
-        strcat(pinfo->comment, info_ptr->text[i].key);
+//      for (i = 0; i < info_ptr->num_text; i++) {
+      for (i = 0; i < num_text; i++) {
+//        strcat(pinfo->comment, info_ptr->text[i].key);
+        strcat(pinfo->comment, text[i].key);
         strcat(pinfo->comment, "::");
-        strcat(pinfo->comment, info_ptr->text[i].text);
+//        strcat(pinfo->comment, info_ptr->text[i].text);
+        strcat(pinfo->comment, text[i].text);
         strcat(pinfo->comment, "\n");
       }
     }
