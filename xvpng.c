@@ -445,6 +445,14 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   char        software[256];
   char       *savecmnt;
 
+// Stuff for v1.5 compliance
+  png_byte   bit_depth;
+  png_byte   color_type;
+  int	     num_palette;
+  int	     num_text;
+  int	     max_text;
+  png_timep  mod_time;
+
   if ((png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
        png_xv_error, png_xv_warning)) == NULL) {
     sprintf(software, "png_create_write_struct() failure in WritePNG");
@@ -458,7 +466,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     FatalError(software);
   }
 
-  if (setjmp(png_ptr->jmpbuf)) {
+//  if (setjmp(png_ptr->jmpbuf)) {
+  if (setjmp(png_jmpbuf(png_ptr))) {
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return -1;
   }
@@ -489,14 +498,21 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     png_set_filter(png_ptr, 0, filter);
   }
 
-  info_ptr->width = w;
-  info_ptr->height = h;
+// This gets set all at once later on with png_set_IHDR()
+//  info_ptr->width = w;
+//  info_ptr->height = h;
   if (w <= 0 || h <= 0) {
     SetISTR(ISTR_WARNING, "%s:  image dimensions out of range (%dx%d)",
       fbasename, w, h);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return -1;
   }
+
+printf("%d, %d\n", w, h);
+
+  png_set_IHDR(png_ptr, info_ptr, w, h, 0, 0, 0, 0, 0);
+
+printf("%d, %d\n", info_ptr->width, info_ptr->height);
 
   info_ptr->interlace_type = interCB.val ? 1 : 0;
 
