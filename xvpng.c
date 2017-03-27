@@ -445,13 +445,14 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   char        software[256];
   char       *savecmnt;
 
-// Stuff for v1.5 compliance
+// DG FIXME: Stuff for v1.5 compliance
   png_byte   bit_depth;
   png_byte   color_type;
   int	     num_palette;
   int	     num_text;
   int	     max_text;
   png_timep  mod_time;
+  png_byte   interlace_type;
 
   if ((png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
        png_xv_error, png_xv_warning)) == NULL) {
@@ -479,13 +480,15 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   png_init_io(png_ptr, fp);
 #endif
 
-  png_set_compression_level(png_ptr, (int)cDial.val);
+// DG FIXME: setting this in png_set_IHDR()
+//  png_set_compression_level(png_ptr, (int)cDial.val);
 
   /* Don't bother filtering if we aren't compressing the image */
   if (FdefCB.val)
   {
     if ((int)cDial.val == 0)
-      png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
+//      png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
+      filter = PNG_FILTER_NONE;
   }
   else
   {
@@ -495,10 +498,10 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     filter |= FavgCB.val   ? PNG_FILTER_AVG   : 0;
     filter |= FPaethCB.val ? PNG_FILTER_PAETH : 0;
 
-    png_set_filter(png_ptr, 0, filter);
+//    png_set_filter(png_ptr, 0, filter);
   }
 
-// This gets set all at once later on with png_set_IHDR()
+// DG FIXME: This gets set all at once later on with png_set_IHDR()
 //  info_ptr->width = w;
 //  info_ptr->height = h;
   if (w <= 0 || h <= 0) {
@@ -508,17 +511,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     return -1;
   }
 
-// FIXME DG playing around here
-printf("%d, %d\n", w, h);
-
-  png_set_IHDR(png_ptr, info_ptr, w, h, 8, PNG_COLOR_TYPE_RGB,
-	PNG_INTERLACE_NONE,
-	PNG_COMPRESSION_TYPE_DEFAULT,
-	PNG_FILTER_TYPE_DEFAULT);
-
-printf("%d, %d\n", info_ptr->width, info_ptr->height);
-
-  info_ptr->interlace_type = interCB.val ? 1 : 0;
+//  info_ptr->interlace_type = interCB.val ? 1 : 0;
+  interlace_type = interCB.val ? 1 : 0;
 
   linesize = 0;   /* quiet a compiler warning */
 
@@ -550,6 +544,14 @@ printf("%d, %d\n", info_ptr->width, info_ptr->height);
       else pc2nc[i] = pc2nc[j];
     }
   }
+
+  // DG FIXME: IHDR stuff...  Progressed to this point...
+  png_set_IHDR(png_ptr, info_ptr, w, h,
+	8,
+	PNG_COLOR_TYPE_RGB,
+	interlace_type,
+	PNG_COMPRESSION_TYPE_DEFAULT,
+	PNG_FILTER_TYPE_DEFAULT);
 
 
   /* Appendix G.2 of user manual claims colorType will never be F_REDUCED... */
