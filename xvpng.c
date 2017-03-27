@@ -480,8 +480,7 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   png_init_io(png_ptr, fp);
 #endif
 
-// DG FIXME: setting this in png_set_IHDR()
-//  png_set_compression_level(png_ptr, (int)cDial.val);
+  png_set_compression_level(png_ptr, (int)cDial.val);
 
   /* Don't bother filtering if we aren't compressing the image */
   if (FdefCB.val)
@@ -617,7 +616,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
           png_destroy_write_struct(&png_ptr, &info_ptr);
           return -1;
         }
-        info_ptr->bit_depth = 8;
+//        info_ptr->bit_depth = 8;
+        bit_depth = 8;
       }
       else /* ptype == PIC8 */ {
         int low_precision;
@@ -718,7 +718,7 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
 // DG: Done selecting the color type.
 
 
-  // DG FIXME: IHDR stuff...  Progressed to this point...
+  // DG FIXME: IHDR stuff...  This should be its final position.
   png_set_IHDR(png_ptr, info_ptr, w, h,
 	bit_depth,
 	color_type,
@@ -735,7 +735,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
 
   png_write_info(png_ptr, info_ptr);
 
-  if (info_ptr->bit_depth < 8)
+//  if (info_ptr->bit_depth < 8)
+  if (bit_depth < 8)
     png_set_packing(png_ptr);
 
   pass=png_set_interlace_handling(png_ptr);
@@ -748,13 +749,15 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     int j;
     p = pic;
     for (j = 0; j < h; ++j) {
-      if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY) {
+//      if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY) {
+      if (color_type == PNG_COLOR_TYPE_GRAY) {
         int k;
         for (k = 0; k < w; ++k)
           png_line[k] = ptype==PIC24 ? MONO(p[k*3], p[k*3+1], p[k*3+2]) :
                                        remap[pc2nc[p[k]]];
         png_write_row(png_ptr, png_line);
-      } else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
+//      } else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
+      } else if (color_type == PNG_COLOR_TYPE_PALETTE) {
         int k;
         for (k = 0; k < w; ++k)
           png_line[k] = pc2nc[p[k]];
