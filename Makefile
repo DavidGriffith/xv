@@ -143,8 +143,8 @@ JPEGLIB = -L$(JPEGDIR)/lib -ljpeg
 ### on your machine, *COMMENT OUT* the following lines
 ###
 PNG    = -DDOPNG
-#PNGDIR = /usr
-PNGDIR = /usr/local
+PNGDIR = /usr
+#PNGDIR = /usr/local
 #PNGDIR = ../../libpng
 ###
 PNGINC = -I$(PNGDIR)/include

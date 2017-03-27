@@ -31,7 +31,8 @@
 
 #ifdef HAVE_PNG
 
-#include "png.h"
+//#include "png.h"
+#include <png.h>
 
 /*** Stuff for PNG Dialog box ***/
 #define PWIDE 318
@@ -1254,7 +1255,8 @@ png_xv_error(png_ptr, message)
 {
   SetISTR(ISTR_WARNING,"%s:  libpng error: %s", fbasename, message);
 
-  longjmp(png_ptr->jmpbuf, 1);
+//  longjmp(png_ptr->jmpbuf, 1);
+  longjmp(png_jmpbuf(png_ptr), 1);
 }
 
 
