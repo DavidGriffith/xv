@@ -451,7 +451,7 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   int	     num_palette;
   int	     num_text;
   int	     max_text;
-  png_timep  mod_time;
+  png_time  mod_time;
   png_byte   interlace_type;
 
   if ((png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
@@ -902,8 +902,12 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
 
   png_set_text(png_ptr, info_ptr, text, num_text);
 
-  png_convert_from_time_t(&(info_ptr->mod_time), time(NULL));
-  info_ptr->valid |= PNG_INFO_tIME;
+//  png_convert_from_time_t(&(info_ptr->mod_time), time(NULL));
+  png_convert_from_time_t(&mod_time, time(NULL));
+
+  png_set_tIME(png_ptr, info_ptr, &mod_time);
+
+//  info_ptr->valid |= PNG_INFO_tIME;
 
   png_write_end(png_ptr, info_ptr);
   fflush(fp);   /* just in case we core-dump before finishing... */
