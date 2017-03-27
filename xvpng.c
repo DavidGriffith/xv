@@ -545,15 +545,6 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     }
   }
 
-  // DG FIXME: IHDR stuff...  Progressed to this point...
-  png_set_IHDR(png_ptr, info_ptr, w, h,
-	8,
-	PNG_COLOR_TYPE_RGB,
-	interlace_type,
-	PNG_COMPRESSION_TYPE_DEFAULT,
-	PNG_FILTER_TYPE_DEFAULT);
-
-
   /* Appendix G.2 of user manual claims colorType will never be F_REDUCED... */
   if (colorType == F_FULLCOLOR || colorType == F_REDUCED) {
     if (ptype == PIC24) {
@@ -564,21 +555,28 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
         png_destroy_write_struct(&png_ptr, &info_ptr);
         return -1;
       }
-      info_ptr->color_type = PNG_COLOR_TYPE_RGB;
-      info_ptr->bit_depth = 8;
+//      info_ptr->color_type = PNG_COLOR_TYPE_RGB;
+//      info_ptr->bit_depth = 8;
+      color_type = PNG_COLOR_TYPE_RGB;
+      bit_depth = 8;
     } else /* ptype == PIC8 */ {
       linesize = w;
-      info_ptr->color_type = PNG_COLOR_TYPE_PALETTE;
+//      info_ptr->color_type = PNG_COLOR_TYPE_PALETTE;
+      color_type = PNG_COLOR_TYPE_PALETTE;
       if (numuniqcols <= 2)
-        info_ptr->bit_depth = 1;
+//        info_ptr->bit_depth = 1;
+        bit_depth = 1;
       else
       if (numuniqcols <= 4)
-        info_ptr->bit_depth = 2;
+//        info_ptr->bit_depth = 2;
+        bit_depth = 2;
       else
       if (numuniqcols <= 16)
-        info_ptr->bit_depth = 4;
+//        info_ptr->bit_depth = 4;
+        bit_depth = 4;
       else
-        info_ptr->bit_depth = 8;
+//        info_ptr->bit_depth = 8;
+        bit_depth = 8;
 
       for (i = 0; i < numuniqcols; i++) {
         palette[i].red   = r1[i];
@@ -592,12 +590,14 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   }
 
   else if (colorType == F_GREYSCALE || colorType == F_BWDITHER) {
-    info_ptr->color_type = PNG_COLOR_TYPE_GRAY;
+//    info_ptr->color_type = PNG_COLOR_TYPE_GRAY;
+    color_type = PNG_COLOR_TYPE_GRAY;
     if (colorType == F_BWDITHER) {
       /* shouldn't happen */
       if (ptype == PIC24) FatalError("PIC24 and B/W Stipple in WritePNG()");
 
-      info_ptr->bit_depth = 1;
+//      info_ptr->bit_depth = 1;
+      bit_depth = 1;
       if (MONO(r1[0], g1[0], b1[0]) > MONO(r1[1], g1[1], b1[1])) {
         remap[0] = 1;
         remap[1] = 0;
@@ -639,7 +639,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
         for (; i < 256; i++)
           remap[i]=0;  /* shouldn't be necessary, but... */
 
-        info_ptr->bit_depth = 8;
+//        info_ptr->bit_depth = 8;
+        bit_depth = 8;
 
         /* Note that this fails most of the time because of gamma */
            /* (and that would be a bug:  GRR FIXME) */
@@ -658,7 +659,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
           for (i = 0; i < numuniqcols; i++) {
             remap[i] &= 0xf;
           }
-          info_ptr->bit_depth = 4;
+//          info_ptr->bit_depth = 4;
+          bit_depth = 4;
 
           /* try to adjust to 2-bit precision grayscale */
 
@@ -674,7 +676,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
           for (i = 0; i < numuniqcols; i++) {
             remap[i] &= 3;
           }
-          info_ptr->bit_depth = 2;
+//          info_ptr->bit_depth = 2;
+          bit_depth = 2;
 
           /* try to adjust to 1-bit precision grayscale */
 
@@ -690,7 +693,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
           for (i = 0; i < numuniqcols; i++) {
             remap[i] &= 1;
           }
-          info_ptr->bit_depth = 1;
+//          info_ptr->bit_depth = 1;
+          bit_depth = 1;
         }
       }
     }
@@ -711,6 +715,17 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     info_ptr->num_text = 1;
     info_ptr->text = text;
   }
+// DG: Done selecting the color type.
+
+
+  // DG FIXME: IHDR stuff...  Progressed to this point...
+  png_set_IHDR(png_ptr, info_ptr, w, h,
+	bit_depth,
+	color_type,
+	interlace_type,
+	PNG_COMPRESSION_TYPE_DEFAULT,
+	PNG_FILTER_TYPE_DEFAULT);
+
 
   Display_Gamma = gDial.val;  /* Save the current gamma for loading */
 
