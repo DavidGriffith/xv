@@ -713,9 +713,11 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     text->text = software;
     text->text_length = strlen(text->text);
 
-    info_ptr->max_text = 1;
-    info_ptr->num_text = 1;
-    info_ptr->text = text;
+//    info_ptr->max_text = 1;
+//    info_ptr->num_text = 1;
+//    info_ptr->text = text;
+    max_text = 1;
+    num_text = 1;
   }
 // DG: Done selecting the color type.
 
@@ -788,24 +790,29 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
       strcpy(savecmnt, picComments);
       key = savecmnt;
       tp = text;
-      info_ptr->num_text = 0;
+//      info_ptr->num_text = 0;
+      num_text = 0;
 
       comment = strchr(key, ':');
 
       do  {
         /* Allocate a larger structure for comments if necessary */
-        if (info_ptr->num_text >= info_ptr->max_text)
+//        if (info_ptr->num_text >= info_ptr->max_text)
+        if (num_text >= max_text)
         {
           if ((tp =
-              realloc(text, (info_ptr->num_text + 2)*sizeof(png_text))) == NULL)
+//              realloc(text, (info_ptr->num_text + 2)*sizeof(png_text))) == NULL)
+              realloc(text, (num_text + 2)*sizeof(png_text))) == NULL)
           {
             break;
           }
           else
           {
             text = tp;
-            tp = &text[info_ptr->num_text];
-            info_ptr->max_text += 2;
+//            tp = &text[info_ptr->num_text];
+//            info_ptr->max_text += 2;
+            tp = &text[num_text];
+            max_text += 2;
           }
         }
 
@@ -855,7 +862,8 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
             }
 
             tp->compression = tp->text_length > 640 ? 0 : -1;
-            info_ptr->num_text++;
+//            info_ptr->num_text++;
+            num_text++;
             tp++;
           }
         }
@@ -879,16 +887,20 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
           tp->text = key;
           tp->text_length = q - key;
           tp->compression = tp->text_length > 750 ? 0 : -1;
-          info_ptr->num_text++;
+//          info_ptr->num_text++;
+          num_text++;
           key = NULL;
         }
       } while (key && *key);
     }
     else {
-      info_ptr->num_text = 0;
+//      info_ptr->num_text = 0;
+      num_text = 0;
     }
   }
-  info_ptr->text = text;
+//  info_ptr->text = text;
+
+  png_set_text(png_ptr, info_ptr, text, num_text);
 
   png_convert_from_time_t(&(info_ptr->mod_time), time(NULL));
   info_ptr->valid |= PNG_INFO_tIME;
@@ -899,7 +911,7 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   if (text) {
     free(text);
     /* must do this or png_destroy_write_struct() 0.97+ will free text again: */
-    info_ptr->text = (png_textp)NULL;
+//    info_ptr->text = (png_textp)NULL;
     if (savecmnt)
     {
       free(savecmnt);
