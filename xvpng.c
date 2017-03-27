@@ -582,9 +582,11 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
         palette[i].green = g1[i];
         palette[i].blue  = b1[i];
       }
-      info_ptr->num_palette = numuniqcols;
-      info_ptr->palette = palette;
-      info_ptr->valid |= PNG_INFO_PLTE;
+//      info_ptr->num_palette = numuniqcols;
+//      info_ptr->palette = palette;
+//      info_ptr->valid |= PNG_INFO_PLTE;
+      png_set_PLTE(png_ptr, info_ptr, palette, numuniqcols);
+
     }
   }
 
@@ -730,8 +732,11 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   Display_Gamma = gDial.val;  /* Save the current gamma for loading */
 
 // GRR FIXME:  add .Xdefaults option to omit writing gamma (size, cumulative errors when editing)--alternatively, modify save box to include "omit" checkbox
-  info_ptr->gamma = 1.0/gDial.val;
-  info_ptr->valid |= PNG_INFO_gAMA;
+//  info_ptr->gamma = 1.0/gDial.val;
+//  info_ptr->valid |= PNG_INFO_gAMA;
+
+  png_set_gAMA(png_ptr, info_ptr, 1.0/gDial.val);
+
 
   png_write_info(png_ptr, info_ptr);
 
