@@ -561,10 +561,6 @@ void Quit(i)
     if (mgcsfxW) XDestroyWindow(theDisp, mgcsfxW);
 #endif
 
-#ifdef HAVE_PNG
-    if (pngW)  XDestroyWindow(theDisp, pngW);
-#endif
-
     /* if NOT using stdcmap for images, free stdcmap */
     if (colorMapMode != CM_STDCMAP) {
       int j;

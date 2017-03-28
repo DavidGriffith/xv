@@ -539,8 +539,9 @@ int x,y;
     return -1;
   }
 
-  /* handle clicks inside the filename box */
-  if (x > 80 &&
+  /* handle clicks inside the filename box, but only when box is not empty */
+  if (enPos > stPos &&
+      x > 80 &&
       y > dList.y + (int) dList.h + 30 &&
       x < 80 + DNAMWIDE+6 &&
       y < dList.y + (int) dList.h + 30 + LINEHIGH+5) {

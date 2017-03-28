@@ -73,6 +73,7 @@ int LoadIFF(fname, pinfo)
   int           BMHDok, CMAPok, CAMGok;
   int           bmhd_width, bmhd_height, bmhd_bitplanes, bmhd_transcol;
   int           i, j, k, lineskip, colors, fmt;
+  int           npixels = 0; /* needs to be initialized _outside_ while-loop */
   byte          bmhd_masking, bmhd_compression;
   long          chunkLen, camg_viewmode;
   byte          *databuf, *dataptr, *cmapptr, *picptr, *pic, *bodyptr;
@@ -138,7 +139,6 @@ int LoadIFF(fname, pinfo)
      BODY chunk was found or dataptr ran over end of file */
 
   while ((rv<0) && (dataptr < (databuf + filesize))) {
-    int npixels = 0;
     chunkLen = (iff_getlong(dataptr + 4) + 1) & 0xfffffffe; /* make even */
 
     if (strncmp((char *) dataptr, "BMHD", (size_t) 4)==0) { /* BMHD chunk? */

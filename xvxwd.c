@@ -19,6 +19,12 @@
  */
 
 #include "xv.h"
+#include <limits.h>             /* for CHAR_BIT */
+
+/* SJT: just in case ... */
+#ifndef CHAR_BIT
+#  define CHAR_BIT 8
+#endif
 
 
 /***************************** x11wd.h *****************************/
@@ -83,9 +89,14 @@ static int    writebigshort   PARM((FILE *, int));
 static int    writebiglong    PARM((FILE *, CARD32));
 #endif
 
+static void   getcolorshift   PARM((CARD32, int *, int *)); /* SJT */
+
+/* SJT: for 16bpp and 24bpp shifts */
+static int    red_shift_right, red_justify_left,
+              grn_shift_right, grn_justify_left,
+              blu_shift_right, blu_justify_left;
 static byte  *pic8, *pic24;
-static CARD32 red_mask, green_mask, blue_mask;
-static int    red_shift, green_shift, blue_shift;
+static CARD32 red_mask, grn_mask, blu_mask;
 static int    bits_per_item, bits_used, bit_shift,
               bits_per_pixel, bits_per_rgb;
 static char   buf[4];
@@ -189,38 +200,34 @@ int LoadXWD(fname, pinfo)
       return 0;
     }
 
-    switch (bits_per_pixel) {
-    case 16:
-    case 24:
-    case 32:
-      ;
-    default:
-      xwdError("True/Direct supports only 16, 24, and 32 bits");
-      return 0;
-    }
+    for (row=0; row<rows; row++) {
+      for (col=0, xP=pic24+(row*cols*3); col<cols; col++) {
+	CARD32 ul;
 
-    if (byte_order == MSBFirst) {
-      for (row=0; row<rows; row++) {
-        for (col=0, xP=pic24+(row*cols*3); col<cols; col++) {
-          register CARD32 ul = getpixnum(ifp);
+	ul = getpixnum(ifp);
+	switch (bits_per_pixel) {
+        case 16:
+        case 24:
+        case 32:
+          /* SJT: shift all the way to the right and then shift left. The
+             pairs of shifts could be combined. There will be two right and
+             one left shift, but it's unknown which will be which. It seems
+             easier to do the shifts (which might be 0) separately than to
+             have a complex set of tests. I believe this is independent of
+             byte order but I have no way to test.
+           */
+          *xP++ = ((ul & red_mask) >> red_shift_right) << red_justify_left;
+          *xP++ = ((ul & grn_mask) >> grn_shift_right) << grn_justify_left;
+          *xP++ = ((ul & blu_mask) >> blu_shift_right) << blu_justify_left;
+          break;
 
-          *xP++ = ul >> red_shift   & red_mask  ;
-          *xP++ = ul >> green_shift & green_mask;
-          *xP++ = ul >> blue_shift  & blue_mask ;
-        };
-        for (col=0; col<padright; col++) getpixnum(ifp);
+	default:
+	  xwdError("True/Direct supports only 16, 24, and 32 bits");
+	  return 0;
+	}
       }
-    } else {
-      for (row=0; row<rows; row++) {
-        for (col=0, xP=pic24+(row*cols*3); col<cols; col++) {
-          register CARD32 ul = getpixnum(ifp);
 
-          *xP++ = ul >> blue_shift  & blue_mask ;
-          *xP++ = ul >> green_shift & green_mask;
-          *xP++ = ul >> red_shift   & red_mask  ;
-        };
-        for (col=0; col<padright; col++) getpixnum(ifp);
-      }
+      for (col=0; col<padright; col++) getpixnum(ifp);
     }
 
     pinfo->type = PIC24;
@@ -445,34 +452,63 @@ static int getinit(file, colsP, rowsP, padrightP, visualclassP, maxv, pinfo)
      (i.e., 3 bytes, no alpha/padding) */
 
 
-  bits_used      = bits_per_item;
+  bits_used  = bits_per_item;
 
   if (bits_per_pixel == sizeof(pixel_mask) * 8)  pixel_mask = (CARD32) -1;
   else pixel_mask = (1 << bits_per_pixel) - 1;
 
-  red_mask   = h11P->red_mask;
-  green_mask = h11P->grn_mask;
-  blue_mask  = h11P->blu_mask;
+  red_mask = h11P->red_mask;
+  grn_mask = h11P->grn_mask;
+  blu_mask = h11P->blu_mask;
 
-  red_shift = blue_shift = green_shift = 0;
-  while (!(red_mask & 1)) {
-    red_mask >>= 1;
-    ++red_shift;
-  }
-  while (!(blue_mask & 1)) {
-    blue_mask >>= 1;
-    ++blue_shift;
-  }
-  while (!(green_mask & 1)) {
-    green_mask >>= 1;
-    ++green_shift;
-  }
+  getcolorshift(red_mask, &red_shift_right, &red_justify_left);
+  getcolorshift(grn_mask, &grn_shift_right, &grn_justify_left);
+  getcolorshift(blu_mask, &blu_shift_right, &blu_justify_left);
 
   byteP  = (char   *) buf;
   shortP = (CARD16 *) buf;
   longP  = (CARD32 *) buf;
 
   return 0;
+}
+
+
+/* SJT: figure out the proper shifts */
+static void getcolorshift (CARD32 mask, int *rightshift, int *leftshift)
+{
+  int lshift, rshift;
+  unsigned int uu;
+
+  if (mask == 0)
+  {
+    *rightshift = *leftshift = 0;
+    return;
+  }
+
+  uu = mask;
+  lshift = rshift = 0;
+  while ((uu & 0xf) == 0)
+  {
+      rshift += 4;
+      uu >>= 4;
+  }
+  while ((uu & 1) == 0)
+  {
+      rshift++;
+      uu >>= 1;
+  }
+
+  while (uu != 0)
+  {
+      if (uu & 1)
+      {
+          lshift++;
+          uu >>= 1;
+      }
+  }
+  *rightshift = rshift;
+  *leftshift = CHAR_BIT * sizeof(pixel) - lshift;
+  return;
 }
 
 

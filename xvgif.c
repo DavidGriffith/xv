@@ -700,7 +700,7 @@ static int readImage(pinfo)
        * associated output code on the output queue.
        */
 
-      while (CurCode > BitMask) {
+      while (CurCode >= ClearCode) {  /* Joe Zbiciak fix, 20070621 */
 	if (OutCount > 4096) break;   /* corrupt file */
 	OutCode[OutCount++] = Suffix[CurCode];
 	CurCode = Prefix[CurCode];
