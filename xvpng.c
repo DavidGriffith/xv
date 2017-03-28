@@ -487,7 +487,7 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
   if (FdefCB.val)
   {
     if ((int)cDial.val == 0)
-//      png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
+      png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
       filter = PNG_FILTER_NONE;
   }
   else
@@ -497,8 +497,7 @@ int WritePNG(fp, pic, ptype, w, h, rmap, gmap, bmap, numcols)
     filter |= FupCB.val    ? PNG_FILTER_UP    : 0;
     filter |= FavgCB.val   ? PNG_FILTER_AVG   : 0;
     filter |= FPaethCB.val ? PNG_FILTER_PAETH : 0;
-
-//    png_set_filter(png_ptr, 0, filter);
+    png_set_filter(png_ptr, 0, filter);
   }
 
 // DG FIXME: This gets set all at once later on with png_set_IHDR()
