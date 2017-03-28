@@ -1071,8 +1071,6 @@ int LoadPNG(fname, pinfo)
 
   pass=png_set_interlace_handling(png_ptr);
 
-  png_read_update_info(png_ptr, info_ptr);
-
   if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGB ||
       png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGB_ALPHA || gray_to_rgb)
   {
