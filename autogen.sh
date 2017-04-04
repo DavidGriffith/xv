@@ -8,6 +8,6 @@ run()
 }
 
 echo
-run aclocal && run automake -a -c -f && run autoconf || exit 1
+run autoheader && aclocal && run automake -a -c -f && run autoconf || exit 1
 echo
 echo Now run \'./configure\'
