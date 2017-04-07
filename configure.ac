@@ -80,6 +80,57 @@ AM_CONDITIONAL(HAVE_TIFF, [test "x$HAVE_TIFF" = xyes])
 AC_SUBST(TIFF_CFLAGS)
 AC_SUBST(TIFF_LIBS)
 
+# libz support
+AC_ARG_ENABLE([z],
+  AC_HELP_STRING([--disable-zlib], [disable zlib compression support]),
+    [libz=$enableval], [libz=auto])
+if test "x${libz}" != "xno"; then
+  AC_CHECK_LIB(z, zlibVersion,
+      HAVE_Z=yes
+      Z_LIBS=-lz
+      AC_DEFINE(HAVE_Z, 1, [define to enable use of zlib]),
+      HAVE_Z=no)
+else
+  HAVE_Z=disabled
+fi
+AM_CONDITIONAL(HAVE_Z, [test "x$HAVE_ZLIB" = xyes])
+AC_SUBST(Z_CFLAGS)
+AC_SUBST(Z_LIBS)
+
+# libm support
+AC_ARG_ENABLE([m],
+  AC_HELP_STRING([--disable-mlib], [disable math library support]),
+    [libm=$enableval], [libm=auto])
+if test "x${libm}" != "xno"; then
+  AC_CHECK_LIB(m, abs,
+      HAVE_MLIB=yes
+      M_LIBS=-lz
+      AC_DEFINE(HAVE_MLIB, 1, [define to enable use of math library]),
+      HAVE_MLIB=no)
+else
+  HAVE_M=disabled
+fi
+AM_CONDITIONAL(HAVE_M, [test "x$HAVE_MLIB" = xyes])
+AC_SUBST(M_CFLAGS)
+AC_SUBST(M_LIBS)
+
+# libX11 support
+AC_ARG_ENABLE([X11],
+  AC_HELP_STRING([--disable-X11], [disable X11 display support]),
+    [libX11=$enableval], [libX11=auto])
+if test "x${libX11}" != "xno"; then
+  AC_CHECK_LIB(X11, XSupportsLocale,
+      HAVE_X11=yes
+      X11_LIBS=-lX11
+      AC_DEFINE(HAVE_X11, 1, [define to enable X11 display support]),
+      HAVE_X11=no)
+else
+  HAVE_X11=disabled
+fi
+AM_CONDITIONAL(HAVE_X11, [test "x$HAVE_X11" = xyes])
+AC_SUBST(X11_CFLAGS)
+AC_SUBST(X11_LIBS)
+
 
 
 
@@ -127,6 +178,18 @@ fi
 
 if test x$HAVE_TIFF = xno ; then
 	AC_MSG_WARN(libtiff is missing!)
+fi
+
+if test x$HAVE_Z = xno ; then
+	AC_MSG_WARN(libz is missing!)
+fi
+
+if test x$HAVE_M = xno ; then
+	AC_MSG_WARN(libm is missing!)
+fi
+
+if test x$HAVE_X11 = xno ; then
+	AC_MSG_WARN(libX11 is missing!)
 fi
 
 AC_CONFIG_FILES([Makefile])
