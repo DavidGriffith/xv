@@ -31,6 +31,7 @@
 
 #ifdef HAVE_PNG
 
+#include <zlib.h>
 #include <png.h>
 
 /*** Stuff for PNG Dialog box ***/
