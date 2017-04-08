@@ -101,7 +101,8 @@ static Cursor copycurs = (Cursor) 0;
 static Cursor cutcurs  = (Cursor) 0;
 
 
-
+/* FLmask: Mask Select. */
+void MaskSelect (int,int,int,int);
 
 /********************************************/
 int CutAllowed()
@@ -1830,6 +1831,13 @@ void CoordC2P(cx, cy, px_ret, py_ret)
 {
   *px_ret = cx + cXOFF;
   *py_ret = cy + cYOFF;
+}
+
+void MaskSelect (x1,x2,y1,y2)
+     int x1,x2,y1,y2;
+{
+  selrx = x1;  selry = y1;  selrw = x2;  selrh = y2;
+  EnableSelection(1);
 }
 
 

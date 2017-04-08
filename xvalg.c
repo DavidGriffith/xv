@@ -50,13 +50,13 @@ static void rotXfer        PARM((int, int, double *,double *,
 static void intsort        PARM((int *, int));
 #endif
 
-static int  start24bitAlg  PARM((byte **, byte **));
-static void end24bitAlg    PARM((byte *, byte *));
+int  start24bitAlg  PARM((byte **, byte **));
+void end24bitAlg    PARM((byte *, byte *));
 
-static void printUTime     PARM((const char *));
+void printUTime     PARM((const char *));
 
-static byte *origPic = (byte *) NULL;
-static int  origPicType;
+byte *origPic = (byte *) NULL;
+int  origPicType;
 static byte origrmap[256], origgmap[256], origbmap[256];
 
 
@@ -69,7 +69,7 @@ static byte origrmap[256], origgmap[256], origbmap[256];
 
 
 /***************************/
-static void printUTime(str)
+void printUTime(str)
      const char *str;
 {
 #ifdef TIMING_TEST
@@ -97,6 +97,7 @@ void AlgInit()
   origPic = (byte *) NULL;
 
   algMB.dim[ALG_NONE] = 1;    /* can't undo when init'ed already */
+  flmaskMB.dim[MSK_NONE]=1;
 }
 
 
@@ -123,6 +124,7 @@ void DoAlg(anum)
   }
 
   algMB.dim[ALG_NONE] = (origPic == (byte *) NULL);
+  flmaskMB.dim[MSK_NONE] = (origPic == (byte *) NULL);
 }
 
 
@@ -1568,7 +1570,7 @@ static void intsort(a, n)
 
 
 /***********************************************/
-static int start24bitAlg(pic24, tmpPic)
+int start24bitAlg(pic24, tmpPic)
      byte **pic24, **tmpPic;
 {
   /* generates a 24-bit version of 'pic', if neccessary, and also mallocs
@@ -1601,7 +1603,7 @@ static int start24bitAlg(pic24, tmpPic)
 
 
 /***********************************************/
-static void end24bitAlg(pic24, outPic)
+void end24bitAlg(pic24, outPic)
      byte *pic24, *outPic;
 {
   /* given pic24, and outPic, which has the new 24-bit image, installs it */
@@ -1630,7 +1632,7 @@ static void end24bitAlg(pic24, outPic)
 
 
 /************************/
-static void saveOrigPic()
+void saveOrigPic()
 {
   /* saves original picture into origPic, if it hasn't already been done.
      This allows us to undo algorithms...

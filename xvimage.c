@@ -319,6 +319,8 @@ int nc, num_rows, num_cols;
 
 #endif /* ENABLE_FIXPIX_SMOOTH */
 
+byte *origPic;
+int  origPicType;
 
 #define DO_CROP 0
 #define DO_ZOOM 1
@@ -1182,6 +1184,12 @@ void DoRotate(dir)
   /* dir=0: 90 degrees clockwise, else 90 degrees counter-clockwise */
   WaitCursor();
 
+  if (origPic!=NULL) {
+	int tmp_pw,tmp_ph;
+	tmp_pw=pWIDE;
+	tmp_ph=pHIGH;
+	RotatePic(origPic,origPicType,&tmp_pw,&tmp_ph,dir);
+  }
   RotatePic(pic, picType, &pWIDE, &pHIGH, dir);
 
   /* rotate clipped version and modify 'clip' coords */

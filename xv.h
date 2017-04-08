@@ -487,10 +487,11 @@
 #define BCROP    19
 #define BUNCROP  20
 #define BACROP   21
-#define BABOUT   22
-#define BQUIT    23
-#define BXV      24
-#define NBUTTS   25    /* # of butts */
+#define BMASKS   22
+#define BABOUT   23
+#define BQUIT    24
+#define BXV      25
+#define NBUTTS   26    /* # of butts */
 
 
 /* buttons in the load/save window */
@@ -820,6 +821,18 @@
 #define PIC24 CONV24_24BIT
 
 /* indices into algMB */
+#define MSK_NONE      0
+#define MSK_SEP1      1  /* separator */
+#define MSK_FLMASK    2
+#define MSK_Q0MASK    3
+#define MSK_WIN       4
+#define MSK_MEKO      5
+#define MSK_CPMASK    6
+#define MSK_RGB       7
+#define MSK_BITREV    8
+#define MSK_COLREV    9
+#define MSK_MAX       10
+
 #define ALG_NONE      0
 #define ALG_SEP1      1  /* separator */
 #define ALG_BLUR      2
@@ -1328,6 +1341,7 @@ WHERE int           dispMode;
 WHERE MBUTT         dispMB;              /* display mode menu button */
 WHERE MBUTT         conv24MB;            /* 24-to-8 conversion mode mbutt */
 WHERE MBUTT         algMB;               /* Algorithms mbutt */
+WHERE MBUTT         flmaskMB;            /* FLmask mbutt */
 WHERE MBUTT         rootMB;
 WHERE MBUTT         sizeMB;
 WHERE MBUTT         windowMB;
