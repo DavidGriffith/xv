@@ -15,7 +15,7 @@ FITS, Sun Rasterfile, GIF, PCX, Targa/TGA, BMP, WBMP, IRIS RGB, Spectrum
 SCREEN$, PM, and optionally PNG, JPEG, JPEG 2000, JP2, TIFF, PostScript,
 PDF, G3 fax, MAG, PIC, MAKI (640x400), PI, and PIC2.
 .LP
-Aside from the usage screen (available by typing 'xv -help' at the command
+Aside from the usage screen (available by typing 'xv \-help' at the command
 line), documentation for XV is now distributed
 .I only
 as a PostScript (or PDF) file, as it has gotten enormous

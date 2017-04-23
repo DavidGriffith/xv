@@ -2,7 +2,7 @@
 .SH NAME
 xcmap \- displays the default colormap on X11 displays
 .SH SYNTAX
-\fBxcmap\fP [ [-d] \fIdisplay\fP] [ [-g] \fIgeometry\fP]
+\fBxcmap\fP [ [\-d] \fIdisplay\fP] [ [\-g] \fIgeometry\fP]
 .SH DESCRIPTION
 \fBxcmap\fP is an X11 program that displays the contents of the colormap
 on 4, 6, and 8-bit PseudoColor (or GreyScale) displays.  It displays a grid 
