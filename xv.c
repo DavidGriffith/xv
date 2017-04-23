@@ -64,7 +64,7 @@ static const char *maingeom = NULL;
 static const char *icongeom = NULL;
 static Atom   __SWM_VROOT = None;
 
-static char   basefname[128];   /* just the current fname, no path */
+static char   basefname[MAXPATHLEN];   /* just the current fname, no path */
 
 #ifdef TV_L10N
 #  ifndef TV_FONTSET
@@ -2084,9 +2084,9 @@ static int openPic(filenum)
   int   oldCXOFF, oldCYOFF, oldCWIDE, oldCHIGH, wascropped;
   char *tmp;
   char *fullname,       /* full name of the original file */
-        filename[512];  /* full name of file to load (could be /tmp/xxx)*/
+        filename[MAXPATHLEN];	/* full name of file to load (could be /tmp/xxx)*/
 #ifdef MACBINARY
-  char origname[512];	/* file name of original file (NO processing) */
+  char origname[MAXPATHLEN];	/* file name of original file (NO processing) */
   origname[0] = '\0';
 #endif
 
