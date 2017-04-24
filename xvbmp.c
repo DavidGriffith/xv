@@ -36,14 +36,14 @@
 
 static long filesize;
 
-static int   loadBMP1   PARM((FILE *, byte *, u_int, u_int));
-static int   loadBMP4   PARM((FILE *, byte *, u_int, u_int, u_int));
-static int   loadBMP8   PARM((FILE *, byte *, u_int, u_int, u_int));
-static int   loadBMP16  PARM((FILE *, byte *, u_int, u_int, u_int *));
-static int   loadBMP24  PARM((FILE *, byte *, u_int, u_int, u_int));
-static int   loadBMP32  PARM((FILE *, byte *, u_int, u_int, u_int *));
-static u_int getshort   PARM((FILE *));
-static u_int getint     PARM((FILE *));
+static int   loadBMP1   PARM((FILE *, byte *, u_int, u_int, int));
+static int   loadBMP4   PARM((FILE *, byte *, u_int, u_int, u_int, int));
+static int   loadBMP8   PARM((FILE *, byte *, u_int, u_int, u_int, int));
+static int   loadBMP16  PARM((FILE *, byte *, u_int, u_int, u_int *, int));
+static int   loadBMP24  PARM((FILE *, byte *, u_int, u_int, u_int, int));
+static int   loadBMP32  PARM((FILE *, byte *, u_int, u_int, u_int *, int));
+static u_int getshort  PARM((FILE *));
+static u_int getint    PARM((FILE *));
 static void  putshort   PARM((FILE *, int));
 static void  putint     PARM((FILE *, int));
 static void  writeBMP1  PARM((FILE *, byte *, int, int));
@@ -62,11 +62,13 @@ int LoadBMP(fname, pinfo)
 /*******************************************/
 {
   FILE       *fp;
-  int        i, c, c1, rv, bPad;
-  u_int      bfSize, bfOffBits, biSize, biWidth, biHeight, biPlanes;
+  int        i, c, c1, rv, bPad, rightsideup = 0;
+  u_int      bfSize, bfOffBits, biSize, biWidth, biPlanes;
   u_int      biBitCount, biCompression, biSizeImage, biXPelsPerMeter;
   u_int      biYPelsPerMeter, biClrUsed, biClrImportant;
+  u_int      npixels;
   u_int      colormask[3];
+  int        biHeight;
   char       buf[512], rgb_bits[16];
   const char *cmpstr, *bname;
   byte       *pic24, *pic8;
@@ -121,6 +123,22 @@ int LoadBMP(fname, pinfo)
     biClrUsed       = biClrImportant  = 0;
   }
 
+  /* Height could be negative for uncompressed BMP files if data is
+     stored right-side-up */
+  npixels = biWidth * biHeight;
+  if (biWidth != 0 && npixels/biWidth != biHeight && biCompression == BI_RGB) {
+    u_int negHeight, npixels2;
+
+    negHeight = biHeight * -1;
+    npixels2 = biWidth * negHeight;
+
+    if (npixels2/biWidth == negHeight) {
+      biHeight = negHeight;
+      npixels = npixels2;
+      rightsideup = 1;
+    }
+  }
+
   if (DEBUG>1) {
     fprintf(stderr,"\nLoadBMP:\tbfSize=%d, bfOffBits=%d\n",bfSize,bfOffBits);
     fprintf(stderr,"\t\tbiSize=%d, biWidth=%d, biHeight=%d, biPlanes=%d\n",
@@ -140,7 +158,6 @@ int LoadBMP(fname, pinfo)
       biPlanes!=1 || biCompression>BI_PNG ||
       biWidth<=0 || biHeight<=0 ||
       (biClrUsed && biClrUsed > (1 << biBitCount))) {
-
     sprintf(buf,
 	    "Unsupported BMP type (%dx%d, Bits=%d, Colors=%d, Planes=%d, "
 	    "Compr=%d)",
@@ -231,7 +248,6 @@ int LoadBMP(fname, pinfo)
   /* create pic8 or pic24 */
 
   if (biBitCount==16 || biBitCount==24 || biBitCount==32) {
-    u_int npixels = biWidth * biHeight;
     u_int count = 3 * npixels;
 
     if (biWidth == 0 || biHeight == 0 || npixels/biWidth != biHeight ||
@@ -241,8 +257,6 @@ int LoadBMP(fname, pinfo)
     if (!pic24) return (bmpError(bname, "couldn't malloc 'pic24'"));
   }
   else {
-    u_int npixels = biWidth * biHeight;
-
     if (biWidth == 0 || biHeight == 0 || npixels/biWidth != biHeight)
       return (bmpError(bname, "image dimensions too large"));
     pic8 = (byte *) calloc((size_t) npixels, (size_t) 1);
@@ -254,23 +268,24 @@ int LoadBMP(fname, pinfo)
   /* load up the image */
   switch (biBitCount) {
   case 1:
-    rv = loadBMP1(fp, pic8, biWidth, biHeight);
+    rv = loadBMP1(fp, pic8, biWidth, biHeight, rightsideup);
     break;
   case 4:
-    rv = loadBMP4(fp, pic8, biWidth, biHeight, biCompression);
+    rv = loadBMP4(fp, pic8, biWidth, biHeight, biCompression, rightsideup);
     break;
   case 8:
-    rv = loadBMP8(fp, pic8, biWidth, biHeight, biCompression);
+    rv = loadBMP8(fp, pic8, biWidth, biHeight, biCompression, rightsideup);
     break;
   case 16:
     rv = loadBMP16(fp, pic24, biWidth, biHeight,           /*  v-- BI_RGB */
-                   biCompression == BI_BITFIELDS? colormask : NULL);
+                   biCompression == BI_BITFIELDS? colormask : NULL,
+                   rightsideup);
     break;
   default:
     if (biBitCount == 32 && biCompression == BI_BITFIELDS)
-      rv = loadBMP32(fp, pic24, biWidth, biHeight, colormask);
+      rv = loadBMP32(fp, pic24, biWidth, biHeight, colormask, rightsideup);
     else /* 24 or (32 and BI_RGB) */
-      rv = loadBMP24(fp, pic24, biWidth, biHeight, biBitCount);
+      rv = loadBMP24(fp, pic24, biWidth, biHeight, biBitCount, rightsideup);
     break;
   }
 
@@ -333,19 +348,31 @@ int LoadBMP(fname, pinfo)
 
 
 /*******************************************/
-static int loadBMP1(fp, pic8, w, h)
+static int loadBMP1(fp, pic8, w, h, rightsideup)
      FILE *fp;
      byte *pic8;
      u_int  w,h;
+     int rightsideup;
 {
-  int   i,j,c,bitnum,padw;
+  int   i,j,c,bitnum,padw,ibegin,iend,iinc;
   byte *pp = pic8 + ((h - 1) * w);
   size_t l = w*h;
 
   c = 0;
   padw = ((w + 31)/32) * 32;  /* 'w', padded to be a multiple of 32 */
 
-  for (i=h-1; i>=0 && (pp - pic8 <= l); i--) {
+  if (rightsideup) {
+    ibegin = 0;
+    iend = h;
+    iinc = 1;
+  }
+  else {
+    ibegin = h-1;
+    iend = -1;
+    iinc = -1;
+  }
+
+  for (i = ibegin; i != iend && (pp - pic8 <= l); i += iinc) {
     pp = pic8 + (i * w);
     if ((i&0x3f)==0) WaitCursor();
     for (j=bitnum=0; j<padw; j++,bitnum++) {
@@ -368,12 +395,14 @@ static int loadBMP1(fp, pic8, w, h)
 
 
 /*******************************************/
-static int loadBMP4(fp, pic8, w, h, comp)
+static int loadBMP4(fp, pic8, w, h, comp, rightsideup)
      FILE *fp;
      byte *pic8;
      u_int  w,h,comp;
+     int rightsideup;
 {
   int   i,j,c,c1,x,y,nybnum,padw,rv;
+  int   begin, end, inc;
   byte *pp = pic8 + ((h - 1) * w);
   size_t l = w*h;
 
@@ -381,9 +410,20 @@ static int loadBMP4(fp, pic8, w, h, comp)
   c = c1 = 0;
 
   if (comp == BI_RGB) {   /* read uncompressed data */
+    if (rightsideup) {
+      begin = 0;
+      end = h;
+      inc = 1;
+    }
+    else {
+      begin = h-1;
+      end = -1;
+      inc = -1;
+    }
+
     padw = ((w + 7)/8) * 8; /* 'w' padded to a multiple of 8pix (32 bits) */
 
-    for (i=h-1; i>=0 && (pp - pic8 <= l); i--) {
+    for (i = begin; i != end && (pp - pic8 <= l); i += inc) {
       pp = pic8 + (i * w);
       if ((i&0x3f)==0) WaitCursor();
 
@@ -454,12 +494,14 @@ static int loadBMP4(fp, pic8, w, h, comp)
 
 
 /*******************************************/
-static int loadBMP8(fp, pic8, w, h, comp)
+static int loadBMP8(fp, pic8, w, h, comp, rightsideup)
      FILE *fp;
      byte *pic8;
      u_int  w,h,comp;
+     int rightsideup;
 {
   int   i,j,c,c1,padw,x,y,rv;
+  int   begin, end, inc;
   byte *pp = pic8 + ((h - 1) * w);
   size_t l = w*h;
   byte *pend;
@@ -469,9 +511,20 @@ static int loadBMP8(fp, pic8, w, h, comp)
   pend = pic8 + w * h;
 
   if (comp == BI_RGB) {   /* read uncompressed data */
+    if (rightsideup) {
+      begin = 0;
+      end = h;
+      inc = 1;
+    }
+    else {
+      begin = h-1;
+      end = -1;
+      inc = -1;
+    }
+
     padw = ((w + 3)/4) * 4; /* 'w' padded to a multiple of 4pix (32 bits) */
 
-    for (i=h-1; i>=0 && (pp - pic8 <= l); i--) {
+    for (i = begin; i != end && (pp - pic8 <= l); i += inc) {
       pp = pic8 + (i * w);
       if ((i&0x3f)==0) WaitCursor();
 
@@ -534,12 +587,13 @@ static int loadBMP8(fp, pic8, w, h, comp)
 
 
 /*******************************************/
-static int loadBMP16(fp, pic24, w, h, mask)
+static int loadBMP16(fp, pic24, w, h, mask, rightsideup)
      FILE  *fp;
      byte  *pic24;
      u_int w, h, *mask;
+     int rightsideup;
 {
-  int	 x, y;
+  int	 x, y, ybegin, yend, yinc;
   byte	*pp = pic24 + ((h - 1) * w * 3);
   size_t l = w*h*3;
   u_int	 buf, colormask[6];
@@ -611,7 +665,18 @@ static int loadBMP16(fp, pic24, w, h, mask)
 	    colorbits[2], colormask[2], bitshift[2], bitshift2[2],
 	    colormask[5], bitshift[5], bitshift2[5]);
 
-  for (y = h-1; y >= 0 && (pp - pic24 <= l); y--) {
+  if (rightsideup) {
+    ybegin = 0;
+    yend = h;
+    yinc = 1;
+  }
+  else {
+    ybegin = h-1;
+    yend = -1;
+    yinc = -1;
+  }
+
+  for (y = ybegin; y != yend && (pp - pic24 <= l); y += yinc) {
     pp = pic24 + (3 * w * y);
     if ((y&0x3f)==0) WaitCursor();
 
@@ -638,12 +703,13 @@ static int loadBMP16(fp, pic24, w, h, mask)
 
 
 /*******************************************/
-static int loadBMP24(fp, pic24, w, h, bits)   /* also handles 32-bit BI_RGB */
+static int loadBMP24(fp, pic24, w, h, bits, rightsideup)   /* also handles 32-bit BI_RGB */
      FILE *fp;
      byte *pic24;
      u_int  w,h, bits;
+     int rightsideup;
 {
-  int   i,j,padb,rv;
+  int   i,j,padb,rv,ibegin,iend,iinc;
   byte *pp = pic24 + ((h - 1) * w * 3);
   size_t l = w*h*3;
 
@@ -652,7 +718,18 @@ static int loadBMP24(fp, pic24, w, h, bits)   /* also handles 32-bit BI_RGB */
   padb = (4 - ((w*3) % 4)) & 0x03;  /* # of pad bytes to read at EOscanline */
   if (bits==32) padb = 0;
 
-  for (i=h-1; i>=0; i--) {
+  if (rightsideup) {
+    ibegin = 0;
+    iend = h;
+    iinc = 1;
+  }
+  else {
+    ibegin = h-1;
+    iend = -1;
+    iinc = -1;
+  }
+
+  for (i=ibegin; i != iend; i+=iinc) {
     pp = pic24 + (i * w * 3);
     if ((i&0x3f)==0) WaitCursor();
 
@@ -676,12 +753,13 @@ static int loadBMP24(fp, pic24, w, h, bits)   /* also handles 32-bit BI_RGB */
 
 
 /*******************************************/
-static int loadBMP32(fp, pic24, w, h, colormask) /* 32-bit BI_BITFIELDS only */
+static int loadBMP32(fp, pic24, w, h, colormask, rightsideup) /* 32-bit BI_BITFIELDS only */
      FILE  *fp;
      byte  *pic24;
      u_int w, h, *colormask;
+     int rightsideup;
 {
-  int	 x, y;
+  int	 x, y, ybegin, yend, yinc;
   byte	*pp;
   u_int	 buf;
   int	 i, bit, bitshift[3], colorbits[3], bitshift2[3];
@@ -722,7 +800,18 @@ static int loadBMP32(fp, pic24, w, h, colormask) /* 32-bit BI_BITFIELDS only */
 	    colorbits[1], colormask[1], bitshift[1], bitshift2[1],
 	    colorbits[2], colormask[2], bitshift[2], bitshift2[2]);
 
-  for (y = h-1; y >= 0; y--) {
+  if (rightsideup) {
+    ybegin = 0;
+    yend = h;
+    yinc = 1;
+  }
+  else {
+    ybegin = h-1;
+    yend = -1;
+    yinc = -1;
+  }
+
+  for (y = ybegin; y != yend; y += yinc) {
     pp = pic24 + (3 * w * y);
     if ((y&0x3f)==0) WaitCursor();
 
@@ -745,6 +834,7 @@ static u_int getshort(fp)
 {
   int c, c1;
   c = getc(fp);  c1 = getc(fp);
+  fprintf(stderr, "getshort: %d, %d\n\n", c, c1);
   return ((u_int) c) + (((u_int) c1) << 8);
 }
 
