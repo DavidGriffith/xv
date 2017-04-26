@@ -509,7 +509,7 @@ int LoadJFIF(fname, pinfo, quick)
   JSAMPROW                         rowptr[1];
   FILE                            *fp;
   const char                      *colorspace_name = "Color";
-  byte                            *pic, *pic_end;
+  byte                            *pic;
   long                             filesize;
   int                              i,w,h,bperpix,bperline,count;
 
@@ -623,6 +623,7 @@ L2:
          *   if CONV24_BEST, or other, ask for 24-bit image and hand it to XV
          */
         cinfo.desired_number_of_colors = 256;
+        cinfo.colormap = NULL;
 
         if (conv24 == CONV24_FAST || conv24 == CONV24_SLOW) {
           cinfo.quantize_colors = TRUE;
@@ -660,7 +661,6 @@ L2:
 	    fbasename);
     goto L1;
   }
-  pic_end = pic + count;
 
   jpeg_start_decompress(&cinfo);
 
@@ -677,7 +677,8 @@ L2:
 
   /* Convert CMYK to RGB color space */
 
-  if (bperpix > 3) {
+  if (cinfo.out_color_components > 3) {
+    const byte *pic_end = pic + count;
     register byte *p = pic;
 
     /* According to documentation accompanying the IJG JPEG Library, it appears
@@ -730,7 +731,7 @@ L2:
     pinfo->colType = F_FULLCOLOR;
 
     if (cinfo.quantize_colors) {
-      switch (bperpix) {
+      switch (cinfo.out_color_components) {
         case 3:
           for (i = 0; i < cinfo.actual_number_of_colors; i++) {
             pinfo->r[i] = cinfo.colormap[0][i];
