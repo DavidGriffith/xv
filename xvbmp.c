@@ -212,6 +212,9 @@ int LoadBMP(fname, pinfo)
     bPad -= 12;
   }
 
+  if (biClrUsed > (1 << biBitCount))
+    biClrUsed = (1 << biBitCount);
+
   /* load up colormap, if any */
   if (biBitCount == 1 || biBitCount == 4 || biBitCount == 8) {
     int i, cmaplen;
@@ -257,13 +260,13 @@ int LoadBMP(fname, pinfo)
     if (biWidth == 0 || biHeight == 0 || npixels/biWidth != biHeight ||
         count/3 != npixels)
       return (bmpError(bname, "image dimensions too large"));
-    pic24 = (byte *) calloc((size_t) count, (size_t) 1);
+    pic24 = (byte *) calloc((size_t) (count + 1), (size_t) 1);
     if (!pic24) return (bmpError(bname, "couldn't malloc 'pic24'"));
   }
   else {
     if (biWidth == 0 || biHeight == 0 || npixels/biWidth != biHeight)
       return (bmpError(bname, "image dimensions too large"));
-    pic8 = (byte *) calloc((size_t) npixels, (size_t) 1);
+    pic8 = (byte *) calloc((size_t) (npixels + 1), (size_t) 1);
     if (!pic8) return(bmpError(bname, "couldn't malloc 'pic8'"));
   }
 
@@ -516,7 +519,7 @@ static int loadBMP8(fp, pic8, w, h, comp, rightsideup)
 
   rv = 0;
 
-  pend = pic8 + w * h;
+  pend = pic8 + l;
 
   if (comp == BI_RGB) {   /* read uncompressed data */
     if (rightsideup) {
