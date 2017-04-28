@@ -58,6 +58,7 @@ static void CropKey            PARM((int, int, int, int));
 static void TrackPicValues     PARM((int, int));
 static int  CheckForConfig     PARM((void));
 static Bool IsConfig           PARM((Display *, XEvent *, char *));
+static void QuitOnInterrupt    PARM((XtPointer dummy, XtSignalId* Id));
 static void onInterrupt        PARM((int));
 
 static void   Paint            PARM((void));
@@ -74,6 +75,11 @@ static void   annotatePic      PARM((void));
 static int    debkludge_offx;
 static int    debkludge_offy;
 
+#ifndef NOSIGNAL
+static XtSignalId IdQuit = 0;
+extern XtAppContext context;
+#endif
+
 /****************/
 int EventLoop()
 /****************/
@@ -89,6 +95,9 @@ int EventLoop()
 
 
 #ifndef NOSIGNAL
+  if (IdQuit)
+    XtRemoveSignal(IdQuit);
+  IdQuit = XtAppAddSignal(context, QuitOnInterrupt, NULL);
   signal(SIGQUIT, onInterrupt);
 #endif
 
@@ -139,7 +148,11 @@ int EventLoop()
        in real-time (polling, flashing the selection, etc.) get next event */
     if ((waitsec<0.0 && !polling && !HaveSelection()) || XPending(theDisp)>0)
     {
+#ifndef NOSIGNAL
+      XtAppNextEvent(context, &event);
+#else
       XNextEvent(theDisp, &event);
+#endif
       retval = HandleEvent(&event,&done);
     }
 
@@ -2683,8 +2696,8 @@ int xvErrorHandler(disp, err)
 
 
 /************************************************************************/
-static void onInterrupt(i)
-     int i;
+
+static void QuitOnInterrupt(XtPointer dummy, XtSignalId* Id)
 {
   /* but first, if any input-grabbing popups are active, we have to 'cancel'
      them. */
@@ -2731,6 +2744,10 @@ static void onInterrupt(i)
 
 
 
+static void onInterrupt(int i)
+{
+  XtNoticeSignal(IdQuit);
+}
 
 
 /***********************************/

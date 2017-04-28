@@ -343,8 +343,8 @@ CFLAGS = $(CCOPTS) $(PNG) $(PNGINC) $(ZLIBINC) $(JPEG) $(JPEGINC) \
 	-DSYSCONFDIR=\"$(SYSCONFDIR)\" -DXVEXECPATH=\"$(LIBDIR)\"
 
 ### remove -lm for BeOS:
-LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) -L/usr/X11R6/lib -lX11 -lm
-#LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) -lX11
+LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) -L/usr/X11R6/lib -lX11 -lXt -lm
+#LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) -lX11 -lXt
 
 OBJS = 	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xv24to8.o xvgif.o xvpm.o xvinfo.o xvctrl.o xvscrl.o xvalg.o \
