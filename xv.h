@@ -921,7 +921,6 @@
 
 #define STDINSTR "<stdin>"
 
-
 #ifndef MAIN
 #define WHERE extern
 #else
