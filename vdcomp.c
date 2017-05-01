@@ -96,40 +96,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* include a malloc.h of some sort (if needed...most systems use stdlib.h) */
-#ifndef VMS   /* VMS hates multi-line "#if"s */
-   /*
-    * I want to use BSD macro for checking if this OS is *BSD or not,
-    * but the macro is defined in <sys/parm.h>, which I don't know all
-    * machine has or not.
-    */
-#  if !defined(ibm032)                    && \
-      !defined(__convex__)                && \
-      !(defined(vax) && !defined(ultrix)) && \
-      !defined(mips)                      && \
-      !defined(apollo)                    && \
-      !defined(pyr)                       && \
-      !defined(sequent)                   && \
-      !defined(__UMAXV__)                 && \
-      !defined(aux)                       && \
-      !defined(bsd43)                     && \
-      !defined(__bsd43)                   && \
-      !defined(__bsdi__)                  && \
-      !defined(__386BSD__)                && \
-      !defined(__FreeBSD__)               && \
-      !defined(__OpenBSD__)               && \
-      !defined(__NetBSD__)                && \
-      !defined(__DARWIN__)
-
-#    if defined(hp300) || defined(hp800) || defined(NeXT)
-#      include <sys/malloc.h>    /* it's in "sys" on HPs and NeXT */
-#    else
-#      include <malloc.h>        /* FIXME: should explicitly list systems that NEED this, not everyone that doesn't */
-#    endif
-
-#  endif /* !most modern systems */
-#endif /* !VMS */
-
+/* DEG 20170501:  Copied malloc detection code over from xv.h
+ * GRR 20070512:  Very few modern systems even have a malloc.h anymore;
+ *                stdlib.h is, well, the standard.  (Former explicitly listed
+ *                "don't include" systems:  ibm032, __convex__, non-ultrix vax,
+ *                mips, apollo, pyr, sequent, __UMAXV__, aux, bsd43, __bsd43,
+ *                __bsdi__, __386BSD__, __FreeBSD__, __OpenBSD__, __NetBSD__,
+ *                __DARWIN__, VMS.)  Anyone who _does_ need it can explicitly
+ *                define NEED_MALLOC_H in the makefile. */
+#ifdef NEED_MALLOC_H
+#  if defined(hp300) || defined(hp800) || defined(NeXT)
+#    include <sys/malloc.h>    /* it's in "sys" on HPs and NeXT */
+#  else
+#    include <malloc.h>
+#  endif
+#endif
 
 #include <X11/Xos.h>
 
