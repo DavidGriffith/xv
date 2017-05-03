@@ -8,6 +8,10 @@
  */
 #define HaveJpeg
 
+/* if, for whatever reason, you're unable to get the WEBP library to compile
+ * on your machine, *COMMENT OUT* the following line
+ */
+#define HaveWEBP
 
 /* if, for whatever reason, you're unable to get the TIFF library to compile
  * on your machine, *COMMENT OUT* the following line
@@ -116,9 +120,12 @@ MGCSFX = -DMGCSFXDIR=\"$(MGCSFXDIR)\"
 
 /* This marks the end of the configuration parameters */
 
-
-
-
+#ifdef HaveWEBP
+WEBP = -DDOWEBP
+WEBPDIR = /usr/
+LIBWEBP = $(WEBPDIR)/lib/libwebp.so
+WEBPINCLUDE = -I$(WEBPDIR)/include
+#endif
 
 #ifdef HaveJpeg
 JPEG = -DDOJPEG
@@ -156,7 +163,7 @@ DEFINES= $(SCO) $(UNIX) $(NODIRENT) $(VPRINTF) $(TIMERS) \
 	$(HPUX7) $(JPEG) $(TIFF) $(PDS) $(DXWM) $(RAND) \
 	$(BACKING_STORE) $(BSDTYPES) $(SGI) $(MGCSFX)
 
-INCLUDES = $(JPEGINCLUDE) $(TIFFINCLUDE)
+INCLUDES = $(JPEGINCLUDE) $(TIFFINCLUDE) $(WEBPINCLUDE)
 
 SRCS1 =	xv.c xvevent.c xvroot.c xvmisc.c xvimage.c xvcolor.c xvsmooth.c \
 	xv24to8.c xvgif.c xvpm.c xvinfo.c xvctrl.c xvscrl.c xvalg.c \
@@ -166,7 +173,7 @@ SRCS1 =	xv.c xvevent.c xvroot.c xvmisc.c xvimage.c xvcolor.c xvsmooth.c \
 	xvbrowse.c xvtext.c xvpcx.c xviff.c xvtarga.c xvxpm.c xvcut.c \
 	xvxwd.c xvfits.c xvpng.c xvzx.c xvwbmp.c xvpcd.c \
 	xvmag.c xvpic.c xvmaki.c xvpi.c xvpic2.c xvvd.c xvmgcsfx.c \
-	xvml.c
+	xvml.c xvwebp.c
 
 OBJS1 =	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xv24to8.o xvgif.o xvpm.o xvinfo.o xvctrl.o xvscrl.o xvalg.o \
@@ -176,7 +183,7 @@ OBJS1 =	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xvbrowse.o xvtext.o xvpcx.o xviff.o xvtarga.o xvxpm.o xvcut.o \
 	xvxwd.o xvfits.o xvpng.o xvzx.o xvwbmp.o xvpcd.o \
 	xvmag.o xvpic.o xvmaki.o xvpi.o xvpic2.o xvvd.o xvmgcsfx.o \
-	xvml.o
+	xvml.o xvwebp.o
 
 SRCS2=	bggen.c
 OBJS2=	bggen.o

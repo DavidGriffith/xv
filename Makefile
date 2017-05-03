@@ -109,6 +109,14 @@ TIFFLIB = -L$(TIFFDIR)/lib -ltiff
 #	( cd $(TIFFDIR) ; make CC='$(CC)' COPTS='$(CCOPTS) $(MCHN)' )
 
 
+#ifdef HaveWEBP
+WEBP = -DDOWEBP
+WEBPDIR = /usr/
+WEBPLIB = -L$(WEBPDIR)/lib -lwebp
+WEBPINC = -I$(WEBPDIR)/include
+#endif
+
+
 ###
 ### if, for whatever reason, you're unable to get the JPEG library to compile
 ### on your machine, *COMMENT OUT* the following lines
@@ -339,14 +347,14 @@ XRANDRLIB = -lXrandr
 
 
 
-CFLAGS = $(CCOPTS) $(PNG) $(PNGINC) $(ZLIBINC) $(JPEG) $(JPEGINC) \
+CFLAGS = $(CCOPTS) $(PNG) $(PNGINC) $(ZLIBINC) $(JPEG) $(JPEGINC) $(WEBP) $(WEBPINC) \
 	$(TIFF) $(TIFFINC) $(PDS) $(JP2K) $(JP2KINC) $(TVL10N) $(MGCSFX) \
 	$(UNIX) $(BSDTYPES) $(RAND) $(MALLOC) $(DXWM) $(MCHN) $(NODIRENT) \
 	$(VPRINTF) $(TIMERS) $(XRANDR) -DDOCDIR=\"$(DOCDIR)\" \
 	-DSYSCONFDIR=\"$(SYSCONFDIR)\" -DXVEXECPATH=\"$(LIBDIR)\"
 
 ### remove -lm for BeOS:
-LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) $(XRANDRLIB) -L/usr/X11R6/lib -lX11 -lXt -lm
+LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) $(XRANDRLIB) $(WEBPLIB) -L/usr/X11R6/lib -lX11 -lXt -lm
 #LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) -lX11 -lXt
 
 OBJS = 	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
@@ -357,7 +365,7 @@ OBJS = 	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xvbrowse.o xvtext.o xvpcx.o xviff.o xvtarga.o xvxpm.o xvcut.o \
 	xvxwd.o xvfits.o xvpng.o xvzx.o xvwbmp.o xvpcd.o xvhips.o \
 	xvmag.o xvpic.o xvmaki.o xvpi.o xvpic2.o xvvd.o xvmgcsfx.o \
-	xvml.o xvjp2k.o
+	xvml.o xvjp2k.o xvwebp.o
 
 MISC = README INSTALL CHANGELOG IDEAS
 

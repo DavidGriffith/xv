@@ -550,6 +550,10 @@ void Quit(i)
     if (pngW)  XDestroyWindow(theDisp, pngW);
 #endif
 
+#ifdef HAVE_WEBP
+    if (webpW) XDestroyWindow(theDisp, webpW);
+#endif
+
 #ifdef HAVE_PCD
     if (pcdW)  XDestroyWindow(theDisp, pcdW);
 #endif
@@ -765,6 +769,10 @@ static void set_cursors(mainc, otherc)
 
 #ifdef HAVE_PNG
   if (pngW)  XDefineCursor(theDisp, pngW, otherc);
+#endif
+
+#ifdef HAVE_WEBP
+  if (webpW)  XDefineCursor(theDisp, webpW, otherc);
 #endif
 
 #ifdef HAVE_PCD

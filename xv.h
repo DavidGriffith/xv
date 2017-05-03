@@ -416,6 +416,9 @@
 /* END OF CONFIGURATION INFO */
 /*****************************/
 
+#ifdef DOWEBP
+#  define HAVE_WEBP
+#endif
 
 #ifdef DOJPEG
 #  define HAVE_JPEG
@@ -573,6 +576,12 @@
 #  define F_TIFINC  0
 #endif
 
+#ifdef HAVE_WEBP
+#  define F_WEBPINC  1
+#else
+#  define F_WEBPINC  0
+#endif
+
 #ifdef HAVE_PNG
 #  define F_PNGINC  1
 #else
@@ -626,7 +635,8 @@
 #define F_JPC       ( 0 + F_PNGINC + F_JPGINC)
 #define F_JP2       ( 0 + F_PNGINC + F_JPGINC + F_JP2INC)
 #define F_GIF       ( 0 + F_PNGINC + F_JPGINC + F_JP2INC + F_JP2INC)  /* always avail; index varies */
-#define F_TIFF      ( 0 + F_PNGINC + F_JPGINC + F_JP2INC + F_JP2INC + F_TIFINC)
+#define F_WEBP      ( 0 + F_PNGINC + F_JPGINC + F_JP2INC + F_JP2INC + F_WEBPINC)
+#define F_TIFF      ( 0 + F_PNGINC + F_JPGINC + F_JP2INC + F_JP2INC + F_WEBPINC + F_TIFINC)
 #define F_PS        ( 1 + F_TIFF)
 #define F_PBMRAW    ( 2 + F_TIFF)
 #define F_PBMASCII  ( 3 + F_TIFF)
@@ -696,6 +706,7 @@
 #define RFT_PI       (JP_EXT_RFT + 4)
 #define RFT_PIC2     (JP_EXT_RFT + 5)
 #define RFT_MGCSFX   (JP_EXT_RFT + 6)
+#define RFT_WEBP     (JP_EXT_RFT + 7)
 
 /* definitions for page up/down, arrow up/down list control */
 #define LS_PAGEUP   0
@@ -1409,6 +1420,11 @@ WHERE Window        pngW;
 WHERE int           pngUp;        /* is pngW mapped, or what? */
 #endif
 
+#ifdef HAVE_WEBP
+/* stuff used for 'webp' box */
+WHERE Window        webpW;
+WHERE int           webpUp;       /* is webpW mapped, or what? */
+#endif
 
 #ifdef ENABLE_FIXPIX_SMOOTH
 WHERE int           do_fixpix_smooth;  /* GRR 19980607: runtime FS dithering */
@@ -2094,6 +2110,14 @@ int LoadRLE                PARM((char *, PICINFO *));
 int LoadSunRas             PARM((char *, PICINFO *));
 int WriteSunRas            PARM((FILE *, byte *, int, int, int, byte *,
 				 byte *, byte*, int, int, int));
+
+/**************************** XVWEBP.C ***************************/
+int LoadWEBP               PARM((char *, PICINFO *));
+void CreateWEBPW           PARM((void));
+void WEBPDialog            PARM((int));
+int  WEBPCheckEvent        PARM((XEvent *));
+void WEBPSaveParams        PARM((char *));
+void VersionInfoWEBP       PARM((void));
 
 /**************************** XVTARGA.C ***************************/
 int LoadTarga              PARM((char *, PICINFO *));

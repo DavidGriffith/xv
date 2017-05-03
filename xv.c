@@ -347,6 +347,10 @@ int main(argc, argv)
   pngW = (Window) NULL;  pngUp = 0;
 #endif
 
+#ifdef HAVE_WEBP
+  webpW = (Window) NULL; webpUp = 0;
+#endif
+
   pcdW = (Window) NULL;  pcdUp = 0;
 
 #ifdef HAVE_PIC2
@@ -991,6 +995,11 @@ int main(argc, argv)
 #ifdef HAVE_PNG
   CreatePNGW();
   XSetTransientForHint(theDisp, pngW, dirW);
+#endif
+
+#ifdef HAVE_WEBP
+  CreateWEBPW();
+  XSetTransientForHint(theDisp, webpW, dirW);
 #endif
 
 #ifdef HAVE_PCD
@@ -1898,6 +1907,9 @@ static void cmdSyntax(i)
 #endif
 #ifdef HAVE_PNG
   VersionInfoPNG();
+#endif
+#ifdef HAVE_WEBP
+  VersionInfoWEBP();
 #endif
   /* pbm/pgm/ppm support is native, not via pbmplus/netpbm libraries */
   fprintf(stderr, "\n");
@@ -3153,6 +3165,15 @@ int ReadFileType(fname)
            magicno[2]=='N'  && magicno[3]=='G')               rv = RFT_PNG;
 #endif
 
+#ifdef HAVE_WEBP
+  else if (magicno[0]==0x52 && magicno[1]==0x49 &&
+          magicno[2]==0x46 && magicno[3]==0x46 &&
+          magicno[8]==0x57 && magicno[9]==0x45 &&
+          magicno[10]==0x42 && magicno[11]==0x50 &&
+          magicno[12]==0x56 && magicno[13]==0x50 &&
+          magicno[14]==0x38)                                 rv = RFT_WEBP;
+#endif
+
 #ifdef HAVE_PDS
   else if (strncmp((char *) magicno,  "NJPL1I00", (size_t) 8)==0 ||
 	   strncmp((char *) magicno+2,"NJPL1I",   (size_t) 6)==0 ||
@@ -3288,6 +3309,10 @@ int ReadPicFile(fname, ftype, pinfo, quick)
 
 #ifdef HAVE_PNG
   case RFT_PNG:     rv = LoadPNG   (fname, pinfo);         break;
+#endif
+
+#ifdef HAVE_WEBP
+  case RFT_WEBP:    rv = LoadWEBP  (fname, pinfo);         break;
 #endif
 
 #ifdef HAVE_PDS
