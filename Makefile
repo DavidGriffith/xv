@@ -196,6 +196,11 @@ JP2KINC = -I$(JP2KDIR)
 JP2KLIB = -L$(JP2KDIR) -ljasper
 
 
+### if, for whatever reason, you don't want to build G3 facsimile support,
+### *COMMENT OUT* the following line
+G3FAX = -DDOG3
+
+
 ###
 ### if, for whatever reason, you're unable to get the PDS/VICAR support
 ### to compile (xvpds.c, and vdcomp.c), *COMMENT OUT* the following line,
@@ -349,7 +354,7 @@ XRANDRLIB = -lXrandr
 ALL_CFLAGS = $(PNG) $(PNGINC) $(ZLIBINC) $(JPEG) $(JPEGINC) $(WEBP) $(WEBPINC) \
 	$(TIFF) $(TIFFINC) $(PDS) $(JP2K) $(JP2KINC) $(TVL10N) $(MGCSFX) \
 	$(UNIX) $(BSDTYPES) $(RAND) $(MALLOC) $(DXWM) $(MCHN) $(NODIRENT) \
-	$(VPRINTF) $(TIMERS) $(XRANDR) -DDOCDIR=\"$(DOCDIR)\" \
+	$(VPRINTF) $(TIMERS) $(XRANDR) $(G3FAX) -DDOCDIR=\"$(DOCDIR)\" \
 	-DSYSCONFDIR=\"$(SYSCONFDIR)\" -DXVEXECPATH=\"$(LIBDIR)\" \
 	$(CFLAGS)
 
@@ -365,7 +370,7 @@ OBJS = 	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xvbrowse.o xvtext.o xvpcx.o xviff.o xvtarga.o xvxpm.o xvcut.o \
 	xvxwd.o xvfits.o xvpng.o xvzx.o xvwbmp.o xvpcd.o xvhips.o \
 	xvmag.o xvpic.o xvmaki.o xvpi.o xvpic2.o xvvd.o xvmgcsfx.o \
-	xvml.o xvjp2k.o xvwebp.o
+	xvml.o xvjp2k.o xvwebp.o xvg3.o
 
 MISC = README INSTALL CHANGELOG IDEAS
 

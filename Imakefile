@@ -2,11 +2,20 @@
  * be sure to check 'config.h' for a couple other configuration options
  */
 
+/* Comment out if you don't need G3 fax files support */
+#define HaveG3
 
 /* if, for whatever reason, you're unable to get the JPEG library to compile
  * on your machine, *COMMENT OUT* the following line
  */
 #define HaveJpeg
+/* #define ReCompileJpeg */
+
+/* if, for whatever reason, you're unable to get the Jasper library to compile
+ * on your machine, *COMMENT OUT* the following line
+ */
+#define HaveJp2k
+/* #define ReCompileJp2k */
 
 /* if, for whatever reason, you're unable to get the WEBP library to compile
  * on your machine, *COMMENT OUT* the following line
@@ -17,12 +26,23 @@
  * on your machine, *COMMENT OUT* the following line
  */
 #define HaveTiff
+/* #define ReCompileTiff */
 
+/* if, for whatever reason, you don't want PNG support for xv, e.g. if
+ * PNG doesn't compile on your machine, *COMMENT OUT* the following line
+ */
+#define HavePng
+/* #define ReCompilePng */
 
 /* if, for whatever reason, you're unable to get the PDS/VICAR support
  * to compile (xvpds.c, and vdcomp.c), *COMMENT OUT* the following line
  */
 #define HavePDS
+
+
+/* Precompiled libraries
+ */
+PRECOMPILEDLIBS = -ljpeg -ljasper -ltiff -lpng -lz
 
 
 /*
@@ -134,6 +154,18 @@ LIBJPEG = $(JPEGDIR)/libjpeg.a
 JPEGINCLUDE = -I$(JPEGDIR)
 #endif
 
+#ifdef HaveJp2k
+JP2K = -DDOJP2K
+JP2KDIR = jasper
+JP2KINCLUDE = -I$(JP2KDIR)
+#endif
+
+#ifdef HavePng
+PNG = -DDOPNG
+PNGDIR = png
+PNGINCLUDE = -I$(PNGDIR)
+#endif
+
 #ifdef HaveTiff
 TIFF = -DDOTIFF
 TIFFDIR = tiff
@@ -156,34 +188,34 @@ SYS_LIBRARIES=        -lm
 #endif
 
 
-DEPLIBS = $(LIBJPEG) $(LIBTIFF)
-LOCAL_LIBRARIES = $(XLIB) $(XTOOLLIB) $(DEPLIBS)
+DEPLIBS = $(LIBJPEG) $(LIBJP2K) $(LIBTIFF) $(LIBPNG)
+LOCAL_LIBRARIES = $(PRECOMPILEDLIBS) $(XLIB) $(XTOOLLIB) $(DEPLIBS)
 
-DEFINES= $(SCO) $(UNIX) $(NODIRENT) $(VPRINTF) $(TIMERS) \
-	$(HPUX7) $(JPEG) $(TIFF) $(PDS) $(DXWM) $(RAND) \
+DEFINES= $(SCO) $(UNIX) $(NODIRENT) $(VPRINTF) $(TIMERS) $(HPUX7) \
+	$(G3FLAGS) $(JPEG) $(JP2K) $(TIFF) $(PDS) $(DXWM) $(RAND) \
 	$(BACKING_STORE) $(BSDTYPES) $(SGI) $(MGCSFX)
 
 INCLUDES = $(JPEGINCLUDE) $(TIFFINCLUDE) $(WEBPINCLUDE)
 
 SRCS1 =	xv.c xvevent.c xvroot.c xvmisc.c xvimage.c xvcolor.c xvsmooth.c \
-	xv24to8.c xvgif.c xvpm.c xvinfo.c xvctrl.c xvscrl.c xvalg.c \
-	xvgifwr.c xvdir.c xvbutt.c xvpbm.c xvxbm.c xvgam.c xvbmp.c \
-	xvdial.c xvgraf.c xvsunras.c xvjpeg.c xvps.c xvpopup.c xvdflt.c \
+	xv24to8.c xvgif.c xvpm.c xvinfo.c xvctrl.c xvscrl.c xvalg.c xvg3.c \
+	xvgifwr.c xvdir.c xvbutt.c xvpbm.c xvxbm.c xvgam.c xvbmp.c xvdial.c \
+	xvgraf.c xvsunras.c xvjpeg.c xvjp2k.c xvps.c xvpopup.c xvdflt.c \
 	xvtiff.c xvtiffwr.c xvpds.c xvrle.c xviris.c xvgrab.c vprintf.c \
 	xvbrowse.c xvtext.c xvpcx.c xviff.c xvtarga.c xvxpm.c xvcut.c \
 	xvxwd.c xvfits.c xvpng.c xvzx.c xvwbmp.c xvpcd.c \
 	xvmag.c xvpic.c xvmaki.c xvpi.c xvpic2.c xvvd.c xvmgcsfx.c \
-	xvml.c xvwebp.c
+	xvml.c xvhips.c xvwebp.c
 
 OBJS1 =	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
-	xv24to8.o xvgif.o xvpm.o xvinfo.o xvctrl.o xvscrl.o xvalg.o \
-	xvgifwr.o xvdir.o xvbutt.o xvpbm.o xvxbm.o xvgam.o xvbmp.o \
-	xvdial.o xvgraf.o xvsunras.o xvjpeg.o xvps.o xvpopup.o xvdflt.o \
+	xv24to8.o xvgif.o xvpm.o xvinfo.o xvctrl.o xvscrl.o xvalg.o xvg3.o \
+	xvgifwr.o xvdir.o xvbutt.o xvpbm.o xvxbm.o xvgam.o xvbmp.o xvdial.o \
+	xvgraf.o xvsunras.o xvjpeg.o xvjp2k.o xvps.o xvpopup.o xvdflt.o \
 	xvtiff.o xvtiffwr.o xvpds.o xvrle.o xviris.o xvgrab.o vprintf.o \
 	xvbrowse.o xvtext.o xvpcx.o xviff.o xvtarga.o xvxpm.o xvcut.o \
 	xvxwd.o xvfits.o xvpng.o xvzx.o xvwbmp.o xvpcd.o \
 	xvmag.o xvpic.o xvmaki.o xvpi.o xvpic2.o xvvd.o xvmgcsfx.o \
-	xvml.o xvwebp.o
+	xvml.o xvhips.o xvwebp.o
 
 SRCS2=	bggen.c
 OBJS2=	bggen.o
@@ -205,28 +237,11 @@ all::
 	@echo ""
 	@echo "  Did you remember to 'make depend' first?"
 	@echo ""
-
-
-#if defined(HaveJpeg) || defined(HaveTiff)
-#  ifdef HaveJpeg
-#    ifdef HaveTiff
-       SUBDIRS = tiff
-#    else
-       SUBDIRS = 
-#    endif
-#  else
-     SUBDIRS = tiff
-#  endif
-#  define PassCDebugFlags
-#  define IHaveSubdirs
-#endif
-
-
-all::
 	@echo "  building xv ..."
 	@echo ""
 
 
+#ifdef ReCompileJpeg
 #ifdef HaveJpeg
 $(LIBJPEG):
 	cd $(JPEGDIR); $(MAKE) libjpeg.a
@@ -238,7 +253,23 @@ clean::
 	( cd $(JPEGDIR) ; $(MAKE) clean )
 	@echo ""
 #endif
+#endif
 
+#ifdef ReCompileJp2k
+#ifdef HaveJp2k
+$(LIBJP2K):
+      cd $(JP2KDIR); $(MAKE) libjasper.a
+
+clean::
+      @echo ""
+      @echo "  cleaning in $(JP2KDIR) ..."
+      @echo ""
+      ( cd $(JP2KDIR) ; $(MAKE) clean )
+      @echo ""
+#endif
+#endif
+
+#ifdef ReCompileTiff
 #ifdef HaveTiff
 $(LIBTIFF):
 	cd $(TIFFDIR); $(MAKE) libtiff.a
@@ -249,8 +280,20 @@ clean::
 	( cd $(TIFFDIR) ; $(MAKE) clean )
 	@echo ""
 #endif
+#endif
 
-
+#ifdef ReCompilePng
+#ifdef HavePng
+$(LIBPNG):
+      cd $(PNGDIR); $(MAKE) libpng.a
+  
+clean::
+      @echo "  cleaning in $(PNGDIR) ..."
+      @echo ""
+      ( cd $(PNGDIR) ; $(MAKE) clean )
+      @echo ""
+#endif
+#endif
 
 SRCS = $(SRCS1) $(SRCS2) $(SRCS3) $(SRCS4)
   
@@ -285,6 +328,9 @@ InstallManPageLong(docs/xvp2p,$(MANDIR),xvpictoppm)
 InstallManPageLong(docs/vdcomp,$(MANDIR),vdcomp)
 
 InstallNonExecFile(xv_mgcsfx.sample,$(MGCSFXDIR))
+
+all::
+	strip xv bggen xcmap xvpictoppm vdcomp
 
 tar:
 	tar cf xv.tar Makefile* Imakefile *.c *.h bits docs \

@@ -85,6 +85,7 @@ static const char *saveFormats[] = {
 					"FITS",
 					"PM",
 					"Spectrum SCREEN$",	/* [JCE] */
+					"G3 fax",		/* [JPD] and [DEG] */
 					"WBMP",
 #ifdef HAVE_MAG
 					"MAG",
