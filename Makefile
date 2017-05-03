@@ -328,7 +328,10 @@ MGCSFXDIR = $(LIBDIR)
 # Directory of default configuration file.
 MGCSFX = -DMGCSFXDIR=\"$(MGCSFXDIR)\"
 
-
+# If you don't have XRandR  includes and library, possibly because
+# your X11 is too old, *COMMENT OUT* the following lines:
+XRANDR    = -DDOXRANDR
+XRANDRLIB = -lXrandr
 
 
 ################ END OF CONFIGURATION OPTIONS #################
@@ -339,11 +342,11 @@ MGCSFX = -DMGCSFXDIR=\"$(MGCSFXDIR)\"
 CFLAGS = $(CCOPTS) $(PNG) $(PNGINC) $(ZLIBINC) $(JPEG) $(JPEGINC) \
 	$(TIFF) $(TIFFINC) $(PDS) $(JP2K) $(JP2KINC) $(TVL10N) $(MGCSFX) \
 	$(UNIX) $(BSDTYPES) $(RAND) $(MALLOC) $(DXWM) $(MCHN) $(NODIRENT) \
-	$(VPRINTF) $(TIMERS) -DDOCDIR=\"$(DOCDIR)\" \
+	$(VPRINTF) $(TIMERS) $(XRANDR) -DDOCDIR=\"$(DOCDIR)\" \
 	-DSYSCONFDIR=\"$(SYSCONFDIR)\" -DXVEXECPATH=\"$(LIBDIR)\"
 
 ### remove -lm for BeOS:
-LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) -L/usr/X11R6/lib -lX11 -lXt -lm
+LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) $(XRANDRLIB) -L/usr/X11R6/lib -lX11 -lXt -lm
 #LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) -lX11 -lXt
 
 OBJS = 	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
