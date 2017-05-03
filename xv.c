@@ -120,7 +120,7 @@ static void parseResources           PARM((int, char **));
 static void parseCmdLine             PARM((int, char **));
 static void verifyArgs               PARM((void));
 static void printoption              PARM((const char *));
-static void cmdSyntax                PARM((void));
+static void cmdSyntax                PARM((int));
 static void rmodeSyntax              PARM((void));
 static int  openPic                  PARM((int));
 static int  readpipe                 PARM((char *, char *));
@@ -1224,8 +1224,7 @@ static void parseResources(argc, argv)
 
   for (i=1; i<argc; ++i) {
     if (!strncmp(argv[i],"-help", (size_t) 5)) {  /* help */
-      cmdSyntax();
-      exit(0);
+      cmdSyntax(0);
     }
 
     else if (!argcmp(argv[i],"-display",4,0,&pm)) {
@@ -1754,7 +1753,7 @@ static void parseCmdLine(argc, argv)
 
     else if (!argcmp(argv[i],"-wloop",3,1,&waitloop));	/* waitloop */
 
-    else if (not_in_first_half) cmdSyntax();
+    else if (not_in_first_half) cmdSyntax(1);
   }
 
 
@@ -1790,7 +1789,7 @@ static void verifyArgs()
   RANGE(curstype,0,254);
   curstype = curstype & 0xfe;   /* clear low bit to make curstype even */
 
-  if (hexpand == 0.0 || vexpand == 0.0) cmdSyntax();
+  if (hexpand == 0.0 || vexpand == 0.0) cmdSyntax(1);
   if (rootMode < 0 || rootMode > RM_MAX) rmodeSyntax();
 
   if (DEBUG) XSynchronize(theDisp, True);
@@ -1858,7 +1857,8 @@ static void printoption(st)
 }
 
 
-static void cmdSyntax()
+static void cmdSyntax(i)
+     int i;
 {
   /* GRR 19980605:  added version info for most common libraries */
   fprintf(stderr, "XV - %s.\n", REVDATE);
@@ -2017,7 +2017,7 @@ static void cmdSyntax()
   printoption("[-/+wloop]");
   printoption("[filename ...]");
   fprintf(stderr,"\n\n");
-  Quit(1);
+  Quit(i);
 }
 
 
