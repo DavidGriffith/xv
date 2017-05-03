@@ -162,7 +162,9 @@
 #  ifndef __NetBSD__
 #    if !(defined __GLIBC__ && __GLIBC__ >= 2)
        extern int   errno;         /* SHOULD be in errno.h, but often isn't */
+#      ifndef __CYGWIN__
        extern char *sys_errlist[]; /* this too... */
+#      endif
 #    endif
 #  endif
 #endif

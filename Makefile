@@ -398,10 +398,11 @@ xvpictoppm:  xvpictoppm.c
 
 
 xvclean:
-	rm -f $(OBJS) xv
+	rm -f $(OBJS) xv xv.exe
 
 clean:  xvclean
 	rm -f bggen vdcomp xcmap xvpictoppm
+	rm -f bggen.exe vdcomp.exe xcmap.exe xvpictoppm.exe
 #	clean only local jpeg and tiff dirs, not user's or system's copies:
 	./$(CLEANDIR) jpeg
 	rm -f jpeg/jconfig.h jpeg/Makefile
