@@ -18,29 +18,29 @@ CC = cc -g
 #       -Wuninitialized -Wparentheses
 
 
-CCOPTS = -O
+CFLAGS = -O
 #
 # these are the usual optimization and warning options for gcc; all such
 # warnings but one (mktemp() use) have been eliminated (at least on Linux):
-#CCOPTS = -O3 -Wall
+#CFLAGS = -O3 -Wall
 #
 # slightly more warnings... older code often made non-const pointers to
 # static strings (nothing should blow up unless something tries to write
 # to them):
-#CCOPTS = -O3 -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wnested-externs
+#CFLAGS = -O3 -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wnested-externs
 #
 # for the next step up in gcc noise, try adding -W (but note that it adds a
 # huge number of unused-parameter and signed/unsigned comparison warnings):
-#CCOPTS = -O3 -Wall -W
+#CFLAGS = -O3 -Wall -W
 
 ### NOTE: Sun running OpenWindows:
 ### if you're using a SUN running OPENWINDOWS, you need to add these two
-### options to the CCOPTS line, so it finds the libs and include files
+### options to the ALL_CFLAGS line, so it finds the libs and include files
 ###   -L/usr/openwin/lib -I/usr/openwin/include
 ###
 ### In general, if your X11 include files and libX11.a library aren't in the
 ### 'standard' places in which the C compiler looks, you should add '-L' and
-### '-I' options on the CCOPTS line to tell the compiler where said files are.
+### '-I' options on the ALL_CFLAGS line to tell the compiler where said files are.
 
 
 # older Unixen don't support the -p option, but its lack may mean installation
@@ -106,8 +106,7 @@ TIFFLIB = -L$(TIFFDIR)/lib -ltiff
 ### included in the "tiff" subdir of XV, not an arbitrary copy of libtiff:
 ###
 #$(TIFFLIB):
-#	( cd $(TIFFDIR) ; make CC='$(CC)' COPTS='$(CCOPTS) $(MCHN)' )
-
+#       ( cd $(TIFFDIR) ; make CC='$(CC)' CFLAGS='$(CFLAGS) $(MCHN)' )
 
 #ifdef HaveWEBP
 WEBP = -DDOWEBP
@@ -347,11 +346,12 @@ XRANDRLIB = -lXrandr
 
 
 
-CFLAGS = $(CCOPTS) $(PNG) $(PNGINC) $(ZLIBINC) $(JPEG) $(JPEGINC) $(WEBP) $(WEBPINC) \
+ALL_CFLAGS = $(PNG) $(PNGINC) $(ZLIBINC) $(JPEG) $(JPEGINC) $(WEBP) $(WEBPINC) \
 	$(TIFF) $(TIFFINC) $(PDS) $(JP2K) $(JP2KINC) $(TVL10N) $(MGCSFX) \
 	$(UNIX) $(BSDTYPES) $(RAND) $(MALLOC) $(DXWM) $(MCHN) $(NODIRENT) \
 	$(VPRINTF) $(TIMERS) $(XRANDR) -DDOCDIR=\"$(DOCDIR)\" \
-	-DSYSCONFDIR=\"$(SYSCONFDIR)\" -DXVEXECPATH=\"$(LIBDIR)\"
+	-DSYSCONFDIR=\"$(SYSCONFDIR)\" -DXVEXECPATH=\"$(LIBDIR)\" \
+	$(CFLAGS)
 
 ### remove -lm for BeOS:
 LIBS = $(TIFFLIB) $(JPEGLIB) $(PNGLIB) $(ZLIBLIB) $(JP2KLIB) $(XRANDRLIB) $(WEBPLIB) -L/usr/X11R6/lib -lX11 -lXt -lm
@@ -371,7 +371,7 @@ MISC = README INSTALL CHANGELOG IDEAS
 
 
 
-.c.o:	; $(CC) $(CFLAGS) -c $*.c
+.c.o:	; $(CC) $(ALL_CFLAGS) -c $*.c
 
 
 
@@ -381,19 +381,19 @@ all: xv bggen vdcomp xcmap xvpictoppm
 
 #xv: $(OBJS) $(JPEGLIB) $(TIFFLIB)
 xv: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o xv $(OBJS) $(LIBS)
+	$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o xv $(OBJS) $(LIBS)
 
 bggen: bggen.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bggen bggen.c $(LIBS)
+	$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o bggen bggen.c $(LIBS)
 
 vdcomp: vdcomp.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o vdcomp vdcomp.c
+	$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o vdcomp vdcomp.c
 
 xcmap:  xcmap.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o xcmap xcmap.c $(LIBS)
+	$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o xcmap xcmap.c $(LIBS)
 
 xvpictoppm:  xvpictoppm.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o xvpictoppm xvpictoppm.c
+	$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o xvpictoppm xvpictoppm.c
 
 
 
