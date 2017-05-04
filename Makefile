@@ -61,6 +61,7 @@ BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man/man1
 MANSUF = 1
 DOCDIR = $(PREFIX)/share/doc/xv
+XPMDIR = $(PREFIX)/share/pixmaps
 LIBDIR = $(PREFIX)/lib/xv
 SYSCONFDIR = /etc
 DESTDIR =
@@ -439,6 +440,11 @@ install: all
 	cp README.jumbo docs/xvdocs.pdf docs/xvdocs.ps $(DESTDIR)$(DOCDIR)/.
 	chmod 644 $(DESTDIR)$(DOCDIR)/README.jumbo \
 	  $(DESTDIR)$(DOCDIR)/xvdocs.pdf $(DESTDIR)$(DOCDIR)/xvdocs.ps
+
+        $(MKDIR) $(DESTDIR)$(XPMDIR)
+        cp contrib/xv.xpm $(DESTDIR)$(XPMDIR)/.
+        chmod 644 $(DESTDIR)$(XPMDIR)/xv.xpm
+
 #
 	#$(MKDIR) $(DESTDIR)$(SYSCONFDIR)
 	#cp xv_mgcsfx.sample $(DESTDIR)$(SYSCONFDIR)/xv_mgcsfx
