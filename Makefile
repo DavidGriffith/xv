@@ -438,17 +438,17 @@ install: all
 	  $(DESTDIR)$(MANDIR)/vdcomp.$(MANSUF)
 #
 	$(MKDIR) $(DESTDIR)$(DOCDIR)		# or $(DESTDIR)$(LIBDIR)
-        cp README* docs/xvdocs.pdf docs/xvdocs.ps $(DESTDIR)$(DOCDIR)/.
-        chmod 644 $(DESTDIR)$(DOCDIR)/README* \
+	cp README* docs/xvdocs.pdf docs/xvdocs.ps $(DESTDIR)$(DOCDIR)/.
+	chmod 644 $(DESTDIR)$(DOCDIR)/README* \
 	  $(DESTDIR)$(DOCDIR)/xvdocs.pdf $(DESTDIR)$(DOCDIR)/xvdocs.ps
 
-        $(MKDIR) $(DESTDIR)$(XPMDIR)
-        cp contrib/xv.xpm $(DESTDIR)$(XPMDIR)/.
-        chmod 644 $(DESTDIR)$(XPMDIR)/xv.xpm
+	$(MKDIR) $(DESTDIR)$(XPMDIR)
+	cp contrib/xv.xpm $(DESTDIR)$(XPMDIR)/.
+	chmod 644 $(DESTDIR)$(XPMDIR)/xv.xpm
 #
-        $(MKDIR) $(DESTDIR)$(APPDIR)
-        cp contrib/xv.desktop $(DESTDIR)$(APPDIR)/.
-        chmod 644 $(DESTDIR)$(APPDIR)/xv.desktop
+	$(MKDIR) $(DESTDIR)$(APPDIR)
+	cp contrib/xv.desktop $(DESTDIR)$(APPDIR)/.
+	chmod 644 $(DESTDIR)$(APPDIR)/xv.desktop
 #
 	#$(MKDIR) $(DESTDIR)$(SYSCONFDIR)
 	#cp xv_mgcsfx.sample $(DESTDIR)$(SYSCONFDIR)/xv_mgcsfx
