@@ -1179,6 +1179,7 @@ WHERE int            picType;               /* CONV24_8BIT,CONV24_24BIT,etc.*/
 WHERE char          *picComments;           /* text comments on current pic */
 WHERE byte          *picExifInfo;           /* image info from digicam */
 WHERE int            picExifInfoSize;       /* size of image info */
+WHERE int            bigendian;             /* true if CPU is bigendian */
 
 #ifdef TV_L10N
 WHERE int            xlocale;		    /* true if Xlib supports locale */

@@ -181,6 +181,8 @@ int main(argc, argv)
   XColor ecdef;
   Window rootReturn, parentReturn, *children;
   unsigned int numChildren, rootDEEP;
+  int endian_test1 = 1;
+  char *endian_test2 = (char *)&endian_test1;
 
 #ifdef AUTO_EXPAND
   signal(SIGHUP, SIG_IGN);
@@ -262,6 +264,10 @@ int main(argc, argv)
   clearR = clearG = clearB = 0;
   InitSelection();
 
+  if (endian_test2[0] == 1)
+    bigendian = 0;
+  else
+    bigendian = 1;
 
   /* default Ghostscript parameters */
   gsDev = "ppmraw";
