@@ -62,6 +62,7 @@ MANDIR = $(PREFIX)/share/man/man1
 MANSUF = 1
 DOCDIR = $(PREFIX)/share/doc/xv
 XPMDIR = $(PREFIX)/share/pixmaps
+APPDIR = $(PREFIX)/share/applications
 LIBDIR = $(PREFIX)/lib/xv
 SYSCONFDIR = /etc
 DESTDIR =
@@ -444,7 +445,10 @@ install: all
         $(MKDIR) $(DESTDIR)$(XPMDIR)
         cp contrib/xv.xpm $(DESTDIR)$(XPMDIR)/.
         chmod 644 $(DESTDIR)$(XPMDIR)/xv.xpm
-
+#
+        $(MKDIR) $(DESTDIR)$(APPDIR)
+        cp contrib/xv.desktop $(DESTDIR)$(APPDIR)/.
+        chmod 644 $(DESTDIR)$(APPDIR)/xv.desktop
 #
 	#$(MKDIR) $(DESTDIR)$(SYSCONFDIR)
 	#cp xv_mgcsfx.sample $(DESTDIR)$(SYSCONFDIR)/xv_mgcsfx

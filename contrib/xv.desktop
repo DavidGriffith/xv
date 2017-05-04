@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=XV
+Comment=An interactive image manipulation program
+Icon=xv
+TryExec=xv
+Exec=xv %F
+Categories=Graphics;RasterGraphics;Viewer;
+MimeType=image/gif;image/jpeg;image/tiff;image/postscript;image/x-portable-bitmap;image/x-portable-graymap;image/x-portable-pixmap;image/x-xbitmap;image/x-xpixmap;image/x-ms-bmp;image/cmu-raster;image/x-rgb;image/targa;image/fits;image/png;image/pm;image/webp;image/jp2;image/jpx;image/jpm;image/g3fax
