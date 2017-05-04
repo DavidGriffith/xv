@@ -110,7 +110,7 @@ TIFFLIB = -L$(TIFFDIR)/lib -ltiff
 
 #ifdef HaveWEBP
 WEBP = -DDOWEBP
-WEBPDIR = /usr/
+WEBPDIR = /usr
 WEBPLIB = -L$(WEBPDIR)/lib -lwebp
 WEBPINC = -I$(WEBPDIR)/include
 #endif
