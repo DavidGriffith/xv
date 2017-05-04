@@ -374,7 +374,7 @@ OBJS = 	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xvmag.o xvpic.o xvmaki.o xvpi.o xvpic2.o xvvd.o xvmgcsfx.o \
 	xvml.o xvjp2k.o xvwebp.o xvg3.o
 
-MISC = README INSTALL CHANGELOG IDEAS
+MISC = README* INSTALL CHANGELOG IDEAS
 
 
 
@@ -438,8 +438,8 @@ install: all
 	  $(DESTDIR)$(MANDIR)/vdcomp.$(MANSUF)
 #
 	$(MKDIR) $(DESTDIR)$(DOCDIR)		# or $(DESTDIR)$(LIBDIR)
-	cp README.jumbo docs/xvdocs.pdf docs/xvdocs.ps $(DESTDIR)$(DOCDIR)/.
-	chmod 644 $(DESTDIR)$(DOCDIR)/README.jumbo \
+        cp README* docs/xvdocs.pdf docs/xvdocs.ps $(DESTDIR)$(DOCDIR)/.
+        chmod 644 $(DESTDIR)$(DOCDIR)/README* \
 	  $(DESTDIR)$(DOCDIR)/xvdocs.pdf $(DESTDIR)$(DOCDIR)/xvdocs.ps
 
         $(MKDIR) $(DESTDIR)$(XPMDIR)
