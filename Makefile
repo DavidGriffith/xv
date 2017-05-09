@@ -351,7 +351,11 @@ XRANDRLIB = -lXrandr
 ################ END OF CONFIGURATION OPTIONS #################
 
 
+.PHONY: dist clean xvclean install uninstall tar xvtar
 
+NAME = xv
+VERSION = 3.10a
+DISTNAME = $(NAME)-$(VERSION)
 
 ALL_CFLAGS = $(PNG) $(PNGINC) $(ZLIBINC) $(JPEG) $(JPEGINC) $(WEBP) $(WEBPINC) \
 	$(TIFF) $(TIFFINC) $(PDS) $(JP2K) $(JP2KINC) $(TVL10N) $(MGCSFX) \
@@ -410,10 +414,26 @@ xvclean:
 clean:  xvclean
 	rm -f bggen vdcomp xcmap xvpictoppm
 	rm -f bggen.exe vdcomp.exe xcmap.exe xvpictoppm.exe
+	rm -f $(DISTNAME).tar.gz
 #	clean only local jpeg and tiff dirs, not user's or system's copies:
 	./$(CLEANDIR) jpeg
 	rm -f jpeg/jconfig.h jpeg/Makefile
 	./$(CLEANDIR) tiff
+
+dist: clean
+	mkdir $(DISTNAME)
+	@for file in `ls`; do \
+		if test $$file != $(DISTNAME); then \
+			cp -Rp $$file $(DISTNAME)/$$file; \
+		fi; \
+	done
+	find $(DISTNAME) -type l -exec rm -f {} \;
+	tar chof $(DISTNAME).tar $(DISTNAME)
+	gzip -f --best $(DISTNAME).tar
+	rm -rf $(DISTNAME)
+	@echo
+	@echo "$(DISTNAME).tar.gz created"
+	@echo
 
 
 # could also do some shell trickery here to attempt mkdir only if dir is
