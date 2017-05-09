@@ -98,7 +98,7 @@ static BUTT  jbut[J_NBUTTS];
 /***************************************************/
 void CreateJPEGW()
 {
-  jpegW = CreateWindow("xv jpeg","XVjpeg",NULL,JWIDE,JHIGH,infofg,infobg,0);
+  jpegW = CreateWindow("xv jpeg","XVjpeg",NULL,JWIDE,JHIGH,infofg,infobg,FALSE);
   if (!jpegW) FatalError("can't create jpeg window!");
 
   XSelectInput(theDisp, jpegW, ExposureMask | ButtonPressMask | KeyPressMask);

@@ -205,7 +205,7 @@ SRCS1 =	xv.c xvevent.c xvroot.c xvmisc.c xvimage.c xvcolor.c xvsmooth.c \
 	xvbrowse.c xvtext.c xvpcx.c xviff.c xvtarga.c xvxpm.c xvcut.c \
 	xvxwd.c xvfits.c xvpng.c xvzx.c xvwbmp.c xvpcd.c \
 	xvmag.c xvpic.c xvmaki.c xvpi.c xvpic2.c xvvd.c xvmgcsfx.c \
-	xvml.c xvhips.c xvwebp.c
+	xvml.c xvhips.c xvwebp.c xvselect.c
 
 OBJS1 =	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xv24to8.o xvgif.o xvpm.o xvinfo.o xvctrl.o xvscrl.o xvalg.o xvg3.o \
@@ -215,7 +215,7 @@ OBJS1 =	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xvbrowse.o xvtext.o xvpcx.o xviff.o xvtarga.o xvxpm.o xvcut.o \
 	xvxwd.o xvfits.o xvpng.o xvzx.o xvwbmp.o xvpcd.o \
 	xvmag.o xvpic.o xvmaki.o xvpi.o xvpic2.o xvvd.o xvmgcsfx.o \
-	xvml.o xvhips.o xvwebp.o
+	xvml.o xvhips.o xvwebp.o xvselect.o
 
 SRCS2=	bggen.c
 OBJS2=	bggen.o

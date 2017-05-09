@@ -676,12 +676,12 @@ void CreateJP2KW(void)
 
     if (!(jp2kW = CreateWindow( "xvjp2k"
                               , "XVjp2k"
-                              , 0
+                              , FALSE
                               , JP2KW
                               , JP2KH
                               , infofg
                               , infobg
-                              , 0
+                              , FALSE
                               )
          )
        ) FatalError("can't create JPEG 2000 window!");

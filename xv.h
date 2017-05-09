@@ -454,6 +454,7 @@
 #  define HAVE_G3
 #endif
 
+#define DBLCLICKTIME 400           /* double-click speed in milliseconds */
 
 #define PROGNAME   "xv"            /* used in resource database */
 
@@ -1246,6 +1247,9 @@ WHERE int            nomgcsfx;  /* True if we don't want to use MgcSfx */
 
 #define FSTRMAX 12   /* Number of function keys to support. */
 WHERE char          *fkeycmds[FSTRMAX]; /* command to run when F# is pressed */
+WHERE int            forcegeom; /* always pretend geometry is user-specified
+				   (breaks ICCCM but some wm would require
+				   manual placement otherwise) */
 
 /* Std Cmap stuff */
 WHERE byte           stdr[256], stdg[256], stdb[256];  /* std 3/3/2 cmap */
@@ -1523,13 +1527,14 @@ WHERE int           mgcsfxUp;      /* is mgcsfxW mapped, or what? */
 /* function declarations for externally-callable functions */
 
 /****************************** XV.C ****************************/
+void  SendSelection        PARM((Atom, Window, Atom, Atom, Time, char const *));
 int   ReadFileType         PARM((char *));
 int   ReadPicFile          PARM((char *, int, PICINFO *, int));
 int   UncompressFile       PARM((char *, char *, int));
 void  KillPageFiles        PARM((char *, int));
-#ifdef MACBINARY          
+#ifdef MACBINARY
 int   RemoveMacbinary      PARM((char *, char *));
-#endif                    
+#endif
 
 void NewPicGetColors       PARM((int, int));
 void FixAspect             PARM((int, int *, int *));
@@ -1559,7 +1564,7 @@ void DoAlg                 PARM((int));
 
 
 /*************************** XVBROWSE.C ************************/
-void CreateBrowse          PARM((const char *, const char *, const char *,
+void CreateBrowse          PARM((const char *, int, const char *, const char *,
 				 const char *, const char *));
 void OpenBrowse            PARM((void));
 void HideBrowseWindows     PARM((void));
@@ -1578,6 +1583,7 @@ void BRCreatedFile         PARM((char *));
 void BTCreate              PARM((BUTT *, Window, int, int, u_int, u_int,
 				 const char *, u_long, u_long, u_long, u_long));
 
+void BTMove                PARM((BUTT *, int, int));
 void BTSetActive           PARM((BUTT *, int));
 void BTRedraw              PARM((BUTT *));
 int  BTTrack               PARM((BUTT *));
@@ -1598,6 +1604,7 @@ int    RBTrack             PARM((RBUTT *, int));
 void   CBCreate            PARM((CBUTT *, Window, int, int, const char *,
 				 u_long, u_long, u_long, u_long));
 
+void   CBMove              PARM((CBUTT *, int, int));
 void   CBRedraw            PARM((CBUTT *));
 void   CBSetActive         PARM((CBUTT *, int));
 int    CBClick             PARM((CBUTT *,int,int));
@@ -1607,6 +1614,9 @@ int    CBTrack             PARM((CBUTT *));
 void   MBCreate            PARM((MBUTT *, Window, int, int, u_int, u_int,
 				 const char *, const char **, int,
 				 u_long, u_long, u_long, u_long));
+
+void   MBChange            PARM((MBUTT *, int, int, unsigned int,
+				 unsigned int));
 
 void   MBRedraw            PARM((MBUTT *));
 void   MBSetActive         PARM((MBUTT *, int));
@@ -1632,6 +1642,7 @@ void   ChangeCmapMode      PARM((int, int, int));
 
 /**************************** XVCTRL.C **************************/
 void   CreateCtrl          PARM((const char *));
+void   ResizeCtrl          PARM((int, int));
 void   SetButtPix          PARM((BUTT *, Pixmap, int, int));
 Pixmap MakePix1            PARM((Window, byte *, int, int));
 
@@ -1646,6 +1657,7 @@ void LSCreate              PARM((LIST *, Window, int, int, int, int, int,
 				 char **, int, u_long, u_long, u_long, u_long,
 				 void (*)(int, SCRL *), int, int));
 
+void LSResize              PARM((LIST *lp, int w, int h, int nlines));
 void LSRedraw              PARM((LIST *, int));
 int  LSClick               PARM((LIST *, XButtonEvent *));
 void LSChangeData          PARM((LIST *, char **, int));
@@ -1704,10 +1716,13 @@ int  DTrack                PARM((DIAL *, int, int));
 
 
 /**************************** XVDIR.C ***************************/
-void CreateDirW            PARM((char *));
+void CreateDirW            PARM((void));
+void ResizeDirW            PARM((int, int));
 void DirBox                PARM((int));
-void RedrawDirW            PARM((int,int,int,int));
-int  ClickDirW             PARM((int, int));
+void RedrawDirW            PARM((int, int, int, int));
+int  ClickDirW             PARM((int, int, int));
+int  DoubleClickDirW       PARM((int, int, int));
+void PasteIntoBox          PARM((char const *));
 void LoadCurrentDirectory  PARM((void));
 void GetDirPath            PARM((char *));
 int  DirCheckCD            PARM((void));
@@ -1715,6 +1730,12 @@ void RedrawDDirW           PARM((void));
 void RedrawDNamW           PARM((void));
 void SelectDir             PARM((int));
 void TrackDDirW            PARM((int,int));
+void SelectAllDirW         PARM((void));
+void CutDirW               PARM((void));
+void CopyDirW              PARM((void));
+void PasteDirW             PARM((void));
+void ClearDirW             PARM((void));
+void InactivateDirW        PARM((void));
 int  DirKey                PARM((int));
 int  DoSave                PARM((void));
 void SetDirFName           PARM((const char *));
@@ -1742,7 +1763,7 @@ int  OpenOutFileDesc       PARM((char *));
 int  EventLoop             PARM((void));
 int  HandleEvent           PARM((XEvent *, int *));
 
-void NewCutBuffer          PARM((char *));
+void NewCutBuffer          PARM((char const *));
 void DrawWindow            PARM((int,int,int,int));
 void WResize               PARM((int, int));
 void WRotate               PARM((void));
@@ -1852,6 +1873,9 @@ void  SetISTR();
 
 /*************************** XVMISC.C ***************************/
 void StoreDeleteWindowProp PARM((Window));
+Window CreateFlexWindow    PARM((const char *, const char *, const char *,
+				int, int, unsigned long, unsigned long,
+				int, int, int));
 Window CreateWindow        PARM((const char *, const char *, const char *,
 				 int, int, u_long, u_long, int));
 void DrawString            PARM((Window, int, int, const char *));
@@ -1895,6 +1919,10 @@ void Timer                 PARM((int));
 
 
 /*************************** XVPOPUP.C ***************************/
+void  SetMinSizeWindow     PARM((Window win, int w, int h));
+void  SetMaxSizeWindow     PARM((Window win, int w, int h));
+void  SetSizeIncWindow     PARM((Window win, int dx, int dy));
+void  CenterMapFlexWindow  PARM((Window, int, int, int, int, int));
 void  CenterMapWindow      PARM((Window, int, int, int, int));
 int   PopUp                PARM((const char *, const char **, int));
 void  ErrPopUp             PARM((const char *, const char *));
@@ -2121,6 +2149,14 @@ int   LoadPS               PARM((char *, PICINFO *, int));
 
 /**************************** XVRLE.C ***************************/
 int LoadRLE                PARM((char *, PICINFO *));
+
+/**************************** XVSELECT.C ***************************/
+char *GetClipboardText     PARM((void));
+char *GetPrimaryText       PARM((void));
+int SetClipboardText       PARM((Window, char const *, int));
+int SetPrimaryText         PARM((Window, char const *, int));
+char const *TextOfSelection PARM((Atom));
+int ReleaseSelection       PARM((Atom));
 
 /**************************** XVSUNRAS.C ***************************/
 int LoadSunRas             PARM((char *, PICINFO *));

@@ -372,7 +372,7 @@ OBJS = 	xv.o xvevent.o xvroot.o xvmisc.o xvimage.o xvcolor.o xvsmooth.o \
 	xvbrowse.o xvtext.o xvpcx.o xviff.o xvtarga.o xvxpm.o xvcut.o \
 	xvxwd.o xvfits.o xvpng.o xvzx.o xvwbmp.o xvpcd.o xvhips.o \
 	xvmag.o xvpic.o xvmaki.o xvpi.o xvpic2.o xvvd.o xvmgcsfx.o \
-	xvml.o xvjp2k.o xvwebp.o xvg3.o
+	xvml.o xvjp2k.o xvwebp.o xvg3.o xvselect.o
 
 MISC = README* INSTALL CHANGELOG IDEAS
 
