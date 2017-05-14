@@ -1744,7 +1744,8 @@ char *GetDirFullName       PARM((void));
 void SetDirSaveMode        PARM((int, int));
 int  Globify               PARM((char *));
 FILE *OpenOutFile          PARM((const char *));
-int  CloseOutFile          PARM((FILE *, const char *, int));
+int  CloseOutFileWhy       PARM((FILE *, const char *, int, const char *));
+#define CloseOutFile(fp, name, fail) CloseOutFileWhy((fp), (name), (fail), NULL)
 
 byte *GenSavePic           PARM((int*, int*,int*, int*, int*,
 				 byte**, byte**, byte**));
